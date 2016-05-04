@@ -1,0 +1,27 @@
+﻿<ion-view view-title="Thông tin nhà xe">
+    <ion-content scroll="true">
+        <select class="trouble-input" ng-model="ItemSave.CreateVehicleCode" style="width:100%;margin-bottom:8px;">
+            <option value="" disabled selected style="opacity:0.5">Chọn xe</option>
+            <option ng-repeat="option in dataVehicle" value="{{option.RegNo}}">{{option.RegNo}}</option>
+        </select>
+        <select class="trouble-input" ng-model="ItemSave.CreateDriverName" style="width:100%;margin-bottom:8px;">
+            <option value="" disabled selected style="opacity:0.5">Chọn tài xế</option>
+            <option ng-repeat="option in _dataDriver" value="{{option.DriverName}}">{{option.DriverName}}</option>
+        </select>
+        <input placeholder="SDT" style="width:100%" ng-model="ItemSave.CreateTelephone" />
+        <h3>Danh sách SO</h3>
+        <ion-list>
+            <ion-item ng-repeat="o in MasterItem">
+                <div style="display:table;width:100%">
+                    <div class="detail-content align-left">Tấn: {{o.Ton}} <br />Khối: {{o.CBM}} <br />SL: {{o.Quantity}} </div>
+                    <div class="detail-content align-left">Số SO: {{o.SOCode}} <br />DNCode: {{o.DNCode}} <br />Mặt hàng: {{o.TranferItem}} </div>
+                    <div class="detail-content align-center">{{o.RoutingCode}}</div>
+                </div>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+    <ion-footer-bar class="bar-assertive">
+        <button ng-click="TenderAccept()" class="button"><strong>Chấp nhận</strong></button>
+        <button ng-click="TenderReject()" class="button pull-right">Từ chối</button>
+    </ion-footer-bar>
+</ion-view>

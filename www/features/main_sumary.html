@@ -1,0 +1,84 @@
+﻿<ion-view view-title="Thống kê">
+    <ion-content scroll="false" style="padding:0px;">
+        <div class="itab">
+            <ul class="itab-title">
+                <li ng-class="{'tab-noactive': selectedTab!=1}" ng-click="selectedTab=1">Lịch sử</li>
+                <li ng-class="{'tab-noactive': selectedTab!=2}" ng-click="selectedTab=2">Thu nhập</li>
+                <li ng-class="{'tab-noactive': selectedTab!=3}" ng-click="selectedTab=3">Năng suất</li>
+            </ul>
+            <ul class="itab-footer">
+                <li ng-class="{ 'tab-active': selectedTab==1}" ng-click="selectedTab=1"></li>
+                <li ng-class="{ 'tab-active': selectedTab==2}" ng-click="selectedTab=2"></li>
+                <li ng-class="{ 'tab-active': selectedTab==3}" ng-click="selectedTab=3"></li>
+            </ul>
+            <div ng-show="selectedTab==1">
+                <ion-scroll style="height:100vh">
+                    <div class="master" ng-repeat="o in HistoryList">
+                        <div class="master-header">
+                            <div style="height:42px;width:42px;background-image:url('img/pcon.png');background-size: 42px 42px;padding: 4px 0px 0px 2px;" ><img src="img/ico_truck.png" /></div>
+                            <div class="master-header-mid" style="padding-left: 20px;">
+                                <strong style="font-size:15px;">{{o.MasterCode}}</strong> <br />
+                                <span style="font-size:12px;">{{o.RegNo}}</span>
+                            </div>
+                            <div class="master-header-right">
+                                <span style="font-size:13px;">Tấn: {{o.Ton}}</span><br />
+                                <span style="font-size:13px;">Khối: {{o.CBM}}</span>
+                            </div>
+                        </div>
+                        <div class="master-control" style="margin: 10px 0px 15px 0px;">
+                            <div ng-show="!o.IsReject" class="seagreen" style="width:50%"><div><img style="max-height:35px;max-width:35px;margin-right: 35px;" src="img/icheck.png" /> Thành công</div></div>
+                            <div ng-show="o.IsReject" class="radicalred" style="width:50%;"><div><img style="max-height:35px;max-width:35px;margin-right: 35px;" src="img/iclose.png" /> Hủy</div></div>
+                            <div style="width:50%;opacity:0.7"><div>Xem chi tiết</div></div>
+                        </div>
+                    </div>
+                </ion-scroll>
+            </div>
+            <div ng-show="selectedTab==2">
+                <ion-scroll style="height:100vh">
+                    <div class="div-empty h25p"></div>
+                    <div style="text-align:center;font-size:16px;color:#656c6f;">Thu nhập tháng</div>
+                    <div style="height:210px">
+                        <div style="height:200px;" id="salaryChart" ui-chart="salaryData" chart-options="SalaryChartOpts"></div>
+                    </div>
+                    <div class="lengend">
+                        <div class="lengend-row">
+                            <div class="lengend-cell"><div class="lengend-rec bgr-skyblue"></div> Lương chuyến</div>
+                            <div class="lengend-cell"><div class="lengend-rec bgr-seagreen"></div> Lương cơ bản</div>
+                        </div>
+                        <div class="lengend-row">
+                            <div class="lengend-cell"><div class="lengend-rec bgr-radicalred"></div> Lương doanh thu</div>
+                            <div class="lengend-cell"><div class="lengend-rec bgr-orange"></div> Lương thưởng</div>
+                        </div>
+                    </div>
+                    <div class="dpt">
+                        <div>
+                            <input style="float:left;" ng-model="dSFrom" type="date">
+                            <input style="float:right;" ng-model="dSTo" type="date">
+                            <div style="clear:both;"></div>
+                        </div>
+                    </div>
+                    <div class="div-empty h10p"></div>
+                    <div class="galary-grid">
+                        <div class="galary-grid-header">
+                            <div class="galary-grid-cell">Ngày</div>
+                            <div class="galary-grid-cell">Mã</div>
+                            <div class="galary-grid-cell">Loại</div>
+                            <div class="galary-grid-cell">Lương</div>
+                        </div>
+                        <div ng-repeat="o in SalaryList" class="galary-grid-row">
+                            <div class="galary-grid-cell">{{o.DateConfig|date:'dd/MM'}}</div>
+                            <div class="galary-grid-cell">{{o.TOMasterCode}}</div>
+                            <div class="galary-grid-cell">{{o.CostName}}</div>
+                            <div class="galary-grid-cell">{{o.Price|currency:"":0}}</div>
+                        </div>
+                    </div>
+                    <div class="div-empty h110p"></div>
+                </ion-scroll>
+            </div>
+            <div ng-show="selectedTab==3">
+                <div id="chart" ui-chart="someData" chart-options="myChartOpts"></div>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>
+

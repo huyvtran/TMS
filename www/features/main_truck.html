@@ -1,0 +1,194 @@
+﻿<ion-view view-title="Vận chuyển">
+    <ion-nav-buttons side="right">
+        <button style="font-size: 20px;" class="button" ng-show="IsRunning" ng-click="ReportProblem()">&lt;i&gt;</button>
+    </ion-nav-buttons>
+    <ion-content scroll="false" style="padding:0px;">
+        <div class="itab" ng-show="ShowMap==1">
+            <ul class="itab-title">
+                <li ng-class="{'tab-noactive': selectedTab!=1}" ng-click="selectedTab=1">Lệnh mới</li>
+                <li ng-class="{'tab-noactive': selectedTab!=2}" ng-click="selectedTab=2">{{tabRunTitle}}</li>
+                <li ng-class="{'tab-noactive': selectedTab!=3}" ng-click="selectedTab=3">Lệnh chờ</li>
+            </ul>
+            <ul class="itab-footer">
+                <li ng-class="{ 'tab-active': selectedTab==1}" ng-click="selectedTab=1"></li>
+                <li ng-class="{ 'tab-active': selectedTab==2}" ng-click="selectedTab=2"></li>
+                <li ng-class="{ 'tab-active': selectedTab==3}" ng-click="selectedTab=3"></li>
+            </ul>
+            <div ng-show="selectedTab==1" class="bgr-grey">
+                <ion-scroll style="height:100vh">
+                    <ion-refresher pulling-text="Pull to refresh..."
+                                   on-refresh="LoadData()">
+                    </ion-refresher>
+                    <div class="master" ng-repeat="o in OpenTimeSheet">
+                        <div class="master-header">
+                            <div style="height:42px;width:42px;background-image:url('img/pcon.png');background-size: 42px 42px;padding: 4px 0px 0px 2px;"><img src="img/ico_truck.png" /></div>
+                            <div class="master-header-mid">
+                                <strong class="master-code">{{o.MasterCode}}</strong> <br />
+                                <span style="font-size:12px;">{{o.RegNo}}</span>
+                            </div>
+                            <div class="master-header-right">
+                                <span style="font-size:13px;">Tấn: {{o.Ton}}</span><br />
+                                <span style="font-size:13px;">Khối: {{o.CBM}}</span>
+                            </div>
+                        </div>
+                        <div class="location-title">ĐIỂM NHẬN</div>
+                        <div class="location-list">
+                            <div class="location-item" ng-repeat="p in o.lstLocationFrom">
+                                <div class="location-img"><img style="max-height:20px;max-width:20px;" src="img/marker_blue.png" /></div>
+                                <div class="location-info">{{p.LocationAddress}}</div>
+                            </div>
+                        </div>
+                        <div class="location-title">ĐIỂM GIAO</div>
+                        <div class="location-list">
+                            <div class="location-item" ng-repeat="p in o.lstLocationTo">
+                                <div class="location-img"><img style="max-height:20px;max-width:20px;" src="img/marker_pink.png" /></div>
+                                <div class="location-info">{{p.LocationAddress}}</div>
+                            </div>
+                        </div>
+                        <div class="master-control">
+                            <div style="width:50%"><div ng-click="RejectMaster(o.TimeSheetDriverID,o.TimeSheetID)" class="btn-active btn-cancel">Hủy lệnh</div></div>
+                            <div style="width:50%"><div ng-click="AcceptMaster(o.TimeSheetDriverID,o.TimeSheetID)" class="btn-active btn-accept">Nhận lệnh</div></div>
+                        </div>
+                    </div>
+                    <div class="div-empty h110p"></div>
+                </ion-scroll>
+            </div>
+            <div class="bgr-grey" ng-show="selectedTab==2" style="height: 100%;">
+                <div ng-show="ViewAccepted==2" style="width: 100%; height: 100%;">
+                    <ion-scroll style="width: 100%; height: 100%;">
+                        <div class="div-empty h10p"></div>
+                        <div class="received-header">
+                            <div style="height:42px;width:42px;background-image:url('img/pcon.png');background-size: 42px 42px;padding: 4px 0px 0px 2px;"><img src="img/ico_truck.png" /></div>
+                            <div class="master-header-mid">
+                                <strong class="master-code">{{AcceptedItem.MasterCode}}</strong> <br />
+                                <span style="font-size:12px;">{{AcceptedItem.RegNo}}</span>
+                            </div>
+                            <div>
+                                <span style="font-size:13px;">Tấn: {{AcceptedItem.Ton}}</span><br />
+                                <span style="font-size:13px;">Khối: {{AcceptedItem.CBM}}</span>
+                            </div>
+                        </div>
+                        <div class="div-empty h1p bgr-munsell"></div>
+                        <div class="received-toolbar-top">
+                            <div ng-click="ShowMapRoute()" class="skyblue" style="width:50%"><img src="img/icon_route.png" /> Xem lộ trình</div>
+                            <div class="radicalred" style="width:50%"><img src="img/iclose.png" /> Hủy đơn hàng</div>
+                        </div>
+                        <div class="div-empty h10p"></div>
+                        <div style="background-color:white;">
+                            <div class="location-title">ĐIỂM NHẬN</div>
+                            <div class="location-list">
+                                <div class="location-item" ng-repeat="p in AcceptedItem.lstLocationFrom" ng-class="{ 'opa50': p.IsLeave==true}">
+                                    <div class="location-button bgr-seagreen" ng-click="LocationComplete(AcceptedItem.TimeSheetDriverID,AcceptedItem.TimeSheetID,AcceptedItem.TOMasterID,p.LocationID,StatusObj.LoadEnd)" ng-show="p.IsLeave==false && IsRunning==true"><img style="max-height: 10px;" src="img/icheck2.png" /></div>
+                                    <div class="location-img"><img style="max-height:20px;max-width:20px;" src="img/marker_blue.png" /></div>
+                                    <div class="location-info" ng-click="ShowSOList(AcceptedItem.TOMasterID,p.LocationID,p.DITOLocationStatusID,AcceptedItem.TimeSheetDriverID,AcceptedItem.TimeSheetID)">{{p.LocationAddress}}</div>
+                                    <div><img style="max-width:7px;float:right" src="img/inext.png" /></div>
+                                </div>
+                            </div>
+                            <div class="location-title">ĐIỂM GIAO</div>
+                            <div class="location-list">
+                                <div class="location-item" ng-repeat="p in AcceptedItem.lstLocationTo" ng-class="{ 'opa50': p.IsLeave==true}">
+                                    <div class=" location-button bgr-seagreen" ng-click="LocationComplete(AcceptedItem.TimeSheetDriverID,AcceptedItem.TimeSheetID,AcceptedItem.TOMasterID,p.LocationID,StatusObj.LoadEnd)" ng-show="p.IsLeave==false && IsRunning==true && IsReceiveFull==true"><img style="max-height: 10px;" src="img/icheck2.png" /></div>
+                                    <div class="location-img"><img style="max-height:20px;max-width:20px;" src="img/marker_pink.png" /></div>
+                                    <div class="location-info" ng-click="ShowSOList(AcceptedItem.TOMasterID,p.LocationID,p.DITOLocationStatusID,AcceptedItem.TimeSheetDriverID,AcceptedItem.TimeSheetID)">{{p.LocationAddress}}</div>
+                                    <div><img style="max-width:7px;float:right" src="img/inext.png" /></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="div-empty h10p"></div>
+                        <div class="master-trouble">
+                            <div style="width:60px;"><img style="max-height:20px;max-width:20px;" src="img/iplus.png" /></div>
+                            <div ng-click="AddTrouble()">Thêm chi phí phát sinh </div>
+                            <div><img style="max-width:7px;float:right" src="img/inext.png" /></div>
+                        </div>
+                        <div class="div-empty h110p"></div>
+                    </ion-scroll>
+                    <div class="received-toolbar-footer">
+                        <div ng-click="RunMaster(AcceptedItem.TimeSheetDriverID)"><span ng-class="{'opa50':IsRunning==true}">BẮT ĐẦU</span></div>
+                        <div><a href="tel:+84835106383"> GỌI ĐIỆN</a></div>
+                    </div>
+                </div>
+                <ion-scroll ng-show="ViewAccepted==3" style="height:100vh">
+                    <div class="master" ng-repeat="o in AcceptTimeSheet">
+                        <div class="master-header">
+                            <div style="height:42px;width:42px;background-image:url('img/pcon.png');background-size: 42px 42px;padding: 4px 0px 0px 2px;"><img src="img/ico_truck.png" /></div>
+                            <div class="master-header-mid">
+                                <strong class="master-code">{{o.MasterCode}}</strong> <br />
+                                <span style="font-size:12px;">{{o.RegNo}}</span>
+                            </div>
+                            <div class="master-header-right">
+                                <span style="font-size:13px;">Tấn: {{o.Ton}}</span><br />
+                                <span style="font-size:13px;">Khối: {{o.CBM}}</span>
+                            </div>
+                        </div>
+                        <div class="location-title">ĐIỂM NHẬN</div>
+                        <div class="location-list">
+                            <div class="location-item" ng-repeat="p in o.lstLocationFrom">
+                                <div class=""><img style="max-height:20px;max-width:20px;" src="img/marker_blue.png" /></div>
+                                <div class="location-info">{{p.LocationAddress}}</div>
+                            </div>
+                        </div>
+                        <div class="location-title">ĐIỂM GIAO</div>
+                        <div class="location-list">
+                            <div class="location-item" ng-repeat="p in o.lstLocationTo">
+                                <div class=""><img style="max-height:20px;max-width:20px;" src="img/marker_pink.png" /></div>
+                                <div class="location-info">{{p.LocationAddress}}</div>
+                            </div>
+                        </div>
+                        <div class="master-control">
+                            <div style="width:50%"><div ng-click="RejectMaster(o.TimeSheetDriverID,o.TimeSheetID)" class="btn-active btn-cancel">Hủy lệnh</div></div>
+                            <div style="width:50%"><div ng-click="RunMaster(o.TimeSheetDriverID)" class="btn-active btn-accept">Thực hiện</div></div>
+                        </div>
+                    </div>
+                </ion-scroll>
+            </div>
+            <div ng-show="selectedTab==3" class="bgr-grey">
+                <ion-scroll style="height:100vh">
+                    <div class="master" ng-repeat="o in RejectTimeSheet">
+                        <div class="master-header">
+                            <div style="height:42px;width:42px;background-image:url('img/pcon.png');background-size: 42px 42px;padding: 4px 0px 0px 2px;"><img src="img/ico_truck.png" /></div>
+                            <div class="master-header-mid">
+                                <strong class="master-code">{{o.MasterCode}}</strong> <br />
+                                <span style="font-size:12px;">{{o.RegNo}}</span>
+                            </div>
+                            <div class="master-header-right">
+                                <span style="font-size:13px;">Tấn: {{o.Ton}}</span><br />
+                                <span style="font-size:13px;">Khối: {{o.CBM}}</span>
+                            </div>
+                        </div>
+                        <div class="location-title">ĐIỂM NHẬN</div>
+                        <div class="location-list">
+                            <div class="location-item" ng-repeat="p in o.lstLocationFrom">
+                                <div class=""><img style="max-height:20px;max-width:20px;" src="img/marker_blue.png" /></div>
+                                <div class="location-info">{{p.LocationAddress}}</div>
+                            </div>
+                        </div>
+                        <div class="location-title">ĐIỂM GIAO</div>
+                        <div class="location-list">
+                            <div class="location-item" ng-repeat="p in o.lstLocationTo">
+                                <div class=""><img style="max-height:20px;max-width:20px;" src="img/marker_pink.png" /></div>
+                                <div class="location-info">{{p.LocationAddress}}</div>
+                            </div>
+                        </div>
+                        <div class="master-control">
+                            <div style="width:50%"><div ng-click="ReAcceptMaster(o.TimeSheetID)" class="btn-active btn-accept">Nhận lệnh</div></div>
+                        </div>
+                    </div>
+                    <div class="div-empty h110p"></div>
+                </ion-scroll>
+            </div>
+        </div>
+        <div ng-show="ShowMap==2" style="width:100%; height:100%;">
+            <div ng-click="CloseMap()" style="background-color:rgba(0,60,136,.5);position:fixed;bottom:10px;left:0px;width:45px;height:35px;z-index:1000;color:white;text-align:center;border-radius: 2px;">Back</div>
+            <div id="map" class="cus-map" style="width:100%; height:100%;"></div>
+        </div>
+        <div ng-show="ShowMap==3" style="width:100%; height:100%;">
+            <select ng-model="ProblemItem.TypeOfRouteProblemID" style="width:100%;margin-bottom:8px;">
+                <option value="" disabled selected style="opacity:0.5">Loại sự cố</option>
+                <option ng-repeat="option in ProblemTypeData" value="{{option.ID}}">{{option.TypeName}}</option>
+            </select>
+            <div class="master-control">
+                <div style="width:50%"><div ng-click="ProblemSave()" class="btn-active btn-accept">Báo sự cố</div></div>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>
