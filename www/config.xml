@@ -1,5 +1,5 @@
-<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="hachi" version="1.0.0">
-  <name>hachi</name>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0" id="TMS" version="1.0.0">
+  <name>TMS</name>
   <description>Hello World sample application that responds to the deviceready event.</description>
   <author href="http://phonegap.com" email="support@phonegap.com">PhoneGap Team</author>
   <content src="index.html"/>
@@ -40,8 +40,8 @@
   <icon src="www/res/icon/android/icon-96-xhdpi.png" gap:platform="android" gap:qualifier="xhdpi"/>
   <icon src="www/res/icon/blackberry/icon-80.png" gap:platform="blackberry"/>
   <icon src="www/res/icon/blackberry/icon-80.png" gap:platform="blackberry" gap:state="hover"/>
-  <icon src="www/res/icon/ios/icon-57.png" gap:platform="ios" width="57" height="57"/>
-  <icon src="www/res/icon/ios/icon-72.png" gap:platform="ios" width="72" height="72"/>
+  <icon src="www/res/icon/ios/icon-50.png" gap:platform="ios" width="50" height="50"/>
+  <icon src="www/res/icon/ios/icon-76.png" gap:platform="ios" width="76" height="76"/>
   <icon src="www/res/icon/ios/icon-57-2x.png" gap:platform="ios" width="114" height="114"/>
   <icon src="www/res/icon/ios/icon-72-2x.png" gap:platform="ios" width="144" height="144"/>
   <icon src="www/res/icon/webos/icon-64.png" gap:platform="webos"/>
