@@ -205,13 +205,16 @@ var app = angular.module('starter', ['ionic', 'ngCordova', 'ngCookies', 'ui.char
             rendererOptions: {
                 // Put data labels on the pie slices.
                 // By default, labels show the percentage of the slice.
+                sliceMargin :1,
                 shadowAlpha: 0,
                 showDataLabels: true
             },
-            color:['#fff']
+            color:['#515974']
         },
+        animate: true,
+        animateReplot: true,
         grid: { shadow: false, drawBorder: false, shadow: false },
-        seriesColors: ['#f5455a', '#4caf50', '#03a9f4'],
+        seriesColors: ['#4caf50', '#f5455a', '#03a9f4'],
         legend: { show: false, location: 's', border: '0px' }
     },
     donutOptions: {
@@ -220,15 +223,14 @@ var app = angular.module('starter', ['ionic', 'ngCordova', 'ngCookies', 'ui.char
             rendererOptions: {
                 // Pies and donuts can start at any arbitrary angle.
                 startAngle: -90,
-                showDataLabels: true,
-                // By default, data labels show the percentage of the donut/pie.
-                // You can show the data 'value' or data 'label' instead.
-                dataLabels: 'value',
                 // "totalLabel=true" uses the centre of the donut for the total amount
                 totalLabel: true,
                 shadowAlpha : 0
-            }
+            },
+            color: ['#515974']
         },
+        animate: true,
+        animateReplot: true,
         grid: { shadow: false, drawBorder: false, shadow: false },
         seriesColors: ['#03a9f4', 'orange', '#f5455a', '#4caf50'],
         legend: { show: false, location: 's', border: '0px' }
@@ -294,7 +296,7 @@ app.controller('defaultController', function ($rootScope, $scope, $http, $sce, $
     }
 
     //variable 
-
+    $rootScope.PullText = "Cập nhật dữ liệu";
 
     //message popup
 

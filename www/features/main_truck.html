@@ -16,7 +16,7 @@
             </ul>
             <div ng-show="selectedTab==1" class="bgr-grey">
                 <ion-scroll style="height:100vh">
-                    <ion-refresher pulling-text="Pull to refresh..."
+                    <ion-refresher pulling-text="{{PullText}}"
                                    on-refresh="LoadData()">
                     </ion-refresher>
                     <div class="master" ng-repeat="o in OpenTimeSheet">
@@ -143,6 +143,9 @@
             </div>
             <div ng-show="selectedTab==3" class="bgr-grey">
                 <ion-scroll style="height:100vh">
+                    <ion-refresher pulling-text="{{PullText}}"
+                                   on-refresh="LoadData()">
+                    </ion-refresher>
                     <div class="master" ng-repeat="o in RejectTimeSheet">
                         <div class="master-header">
                             <div style="height:42px;width:42px;background-image:url('img/pcon.png');background-size: 42px 42px;padding: 4px 0px 0px 2px;"><img src="img/ico_truck.png" /></div>

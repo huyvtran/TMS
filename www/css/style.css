@@ -82,7 +82,7 @@ html, body{height:100%;}
 .itab ul.itab-title li {display:table-cell;text-align:center;vertical-align: middle;font-size:17px;padding: 3px;}
 
 .itab-footer .tab-active{background-color:white;}
-.itab ul.itab-footer {display:table;width:100%;margin-bottom:1px;background-color:#03a9f4;}
+.itab ul.itab-footer {display:table;width:100%;margin-bottom:0px;background-color:#03a9f4;}
 .itab ul.itab-footer li {display:table-cell;height:2px;}
 /*vendor home detail*/
 .detail-content{ display:table-cell;border-color:grey;border-width:1px;border-style:solid;vertical-align: middle;padding: 3px;}
@@ -152,8 +152,8 @@ html, body{height:100%;}
 .cus-table > div{display:table-cell;}
 .nopadding{padding:0px;}           
 /*sumary*/
-.jqplot-data-label {color:white}
-
+#salaryChart .jqplot-data-label{color:#515974;}
+#chart .jqplot-data-label {color:#515974}
 /*thu nhap*/
 
 .galary-grid{display:table;width: 100%;}
