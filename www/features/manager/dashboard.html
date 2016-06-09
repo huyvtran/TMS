@@ -1,0 +1,58 @@
+﻿<ion-view view-title="Dashboard">
+    <ion-nav-buttons side="left">
+        <button class="button" ng-click="ChangeView()"><i class="fa fa-search fa-2x" aria-hidden="true"></i></button>
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <button  class="button" ng-click="ChangeView()"><i class="fa fa-sliders fa-2x fa-rotate-90" aria-hidden="true"></i></button>
+    </ion-nav-buttons>
+    <ion-content scroll="false">
+        <div style="width:100%;height:45%;">
+            <div class="menu-metro">
+                <div class="metro-row">
+                    <div class="metro-cell">
+                        <div><img style="height:40px" src="img/order.png" /></div>
+                        <div>Đơn hàng</div>
+                    </div>
+                    <div class="metro-cell">
+                        <div><img style="height:40px" src="img/xe.png" /></i></div>
+                        <div>Xe</div>
+                    </div>
+                </div>
+                <div class="metro-row">
+                    <div class="metro-cell">
+                        <div><img style="height:40px" src="img/taichinh.png" /></i></div>
+                        <div>Tài chính</div>
+                    </div>
+                    <div class="metro-cell">
+                        <div><img style="height:40px" src="img/phatsinh.png" /></i></div>
+                        <div>Phát sinh</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="width:100%;height:45%;background-color:#3c09d4">
+            asd
+        </div>
+        <div style="width:100%;height:20%;height:10%;">
+            <div class="mtab">
+                <ul class="mtab-title">
+                    <li ng-class="{'tab-noactive': selectedTab!=1}" ng-click="selectedTab=1"><i class="fa fa-share-alt" aria-hidden="true"></i></li>
+                    <li ng-class="{'tab-noactive': selectedTab!=2}" ng-click="selectedTab=2"><i class="fa fa-eye" aria-hidden="true"></i></li>
+                    <li ng-class="{'tab-noactive': selectedTab!=3}" ng-click="selectedTab=3"><i class="fa fa-bell-o" aria-hidden="true"></i></li>
+                    <li ng-class="{'tab-noactive': selectedTab!=4}" ng-click="selectedTab=4"><i class="fa fa-pie-chart" aria-hidden="true"></i></li>
+                </ul>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>
+<style>
+    .menu-metro { display:table;table-layout:fixed;height:100%;width:100%; }
+    .metro-row {display:table-row; }
+    .metro-cell {display:table-cell; border-right:1px solid #808080;border-bottom:1px solid #808080;text-align:center;vertical-align:middle}
+
+    .mtab{height:100%;}
+    .mtab-title .tab-noactive{color:#808080;}
+    .mtab ul.mtab-title {display:table;width:100%;background-color:#fff;color:#3c09d4;height:50px;}
+    .mtab ul.mtab-title li {display:table-cell;text-align:center;vertical-align: middle;font-size:17px;padding: 3px;}
+</style>
+
