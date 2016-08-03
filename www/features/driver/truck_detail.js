@@ -10,7 +10,9 @@
     $scope.ShowReturnDetail = false;
     $scope.GOPItem = {};
     $scope.ShowBtnAdd = true;
+    $scope.SOAddressCombobox = {};
     $scope.GOPCombobox = {};
+    $scope.ProductCombobox = {};
 
     $scope.BtnAdd = function () {
         $scope.ShowBtnAdd = !$scope.ShowBtnAdd;
@@ -25,16 +27,16 @@
         Leave:226
     }
 
-    if ($stateParams.statusID < $scope.StatusObj.Come) {
+    if ($stateParams.statusID == 0) {
         $scope.statusID = 1;
     }
-    else if ($stateParams.statusID == $scope.StatusObj.Come) {
+    else if ($stateParams.statusID == 1) {
         $scope.statusID = 2;
     }
-    else if ($stateParams.statusID == $scope.StatusObj.LoadStart) {
+    else if ($stateParams.statusID == 2) {
         $scope.statusID = 3;
     }
-    else if ($stateParams.statusID == $scope.StatusObj.LoadEnd) {
+    else if ($stateParams.statusID == 3) {
         $scope.statusID = 4;
     }
     else {
@@ -45,6 +47,7 @@
     $scope.SOList = [];
     $scope.FileList = [];
     $scope.Host = Common.Services.url.Host;
+
 
     $scope.LoadSO = function () {
 
@@ -63,7 +66,7 @@
                     Common.Services.Call($http, {
                         url: Common.Services.url.MOBI,
                         method: 'FLMMobileDriver_FileList',
-                        data: { id: o.ID, code: "pod" },
+                        data: { id: o.ID, code: "dipod" },
                         success: function (res) {
                             o.lstFile = res;
                         }
@@ -88,7 +91,37 @@
     }
 
     $scope.LocationComplete = function () {
-        if ($scope.statusID <= 4)
+        if ($scope.statusID == 1) {
+            $scope.temp = $rootScope.CurrentTemperature;
+            var str = "Xác nhận đến điểm";
+            if ($scope.temp != null) {
+                str = 'Nhập nhiệt độ xe';
+            }
+            $rootScope.PopupConfirmInput({
+                title: str,
+                okText: 'Đồng ý',
+                cancelText: 'Quay lại',
+                scope: $scope,
+                template: '<div style="margin-top:5px" ng-show="temp!=null"><input type="number" class="input-temp" placeholder="Nhập nhiệt độ..." type="text" ng-model="temp"> ',
+                ok: function (scope) {
+                    $rootScope.CurrentTemperature = scope.temp;
+                    $ionicLoading.show();
+                    Common.Services.Call($http, {
+                        url: Common.Services.url.MOBI,
+                        method: "FLMMobileStatus_Save",
+                        data: { timesheetID: $scope.sheetID, timedriverID: $scope.sheetDriverID, masterID: $scope.masterID, locationID: $scope.locationID, temp: $scope.CurrentTemperature },
+                        success: function (res) {
+                            $scope.statusID++;
+                            if ($scope.statusID > 4) {
+                                $state.go('driver.truck');
+                            }
+                            $ionicLoading.hide();
+                        }
+                    })
+                }
+            });
+        }
+        else if ($scope.statusID <= 4)
             $rootScope.PopupConfirm({
             title: 'Xác nhận rời khỏi điểm này?',
             okText: 'Chấp nhận',
@@ -98,7 +131,7 @@
                 Common.Services.Call($http, {
                     url: Common.Services.url.MOBI,
                     method: "FLMMobileStatus_Save",
-                    data: { timesheetID: $scope.sheetID, timedriverID: $scope.sheetDriverID, masterID: $scope.masterID, locationID: $scope.locationID, statusID: $scope.statusID },
+                    data: { timesheetID: $scope.sheetID, timedriverID: $scope.sheetDriverID, masterID: $scope.masterID, locationID: $scope.locationID },
                     success: function (res) {
                         $scope.statusID++;
                         if ($scope.statusID > 4) {
@@ -117,12 +150,24 @@
 
     // nav bar
     $scope.BackToTruck = function () {
-        $state.go('driver.truck');
+        $state.go($rootScope.PreviousState, $rootScope.PreviousParam);
     }
 
     //#region GOPreturn
 
+    $scope.ReloadProduct = function () {
+        $scope.ProductCombobox.Clear();
+        $scope.GOPItem.ProductID = 0;
+        $scope.ProductReturnList = [];
+        angular.forEach($scope.ProductReturnData, function (o, i) {
+            if (o.GroupOfProductID == $scope.GOPItem.GroupProductID)
+                $scope.ProductReturnList.push(o);
+        })
+    }
+
     $scope.LoadGOPReturn = function () {
+
+        $ionicLoading.show();
         Common.Services.Call($http, {
             url: Common.Services.url.MOBI,
             method: "Mobile_GOPReturnList",
@@ -131,66 +176,124 @@
                 locationID: $scope.locationID
             },
             success: function (res) {
-                $ionicLoading.hide();
                 $scope.ReturnList = res;
+            }
+        })
+
+        Common.Services.Call($http, {
+            url: Common.Services.url.MOBI,
+            method: "Mobile_DITOGroupProductList",
+            data: {
+                masterID: $scope.masterID,
+                locationID: $scope.locationID
+            },
+            success: function (res) {
+                if (res.length > 0) {
+                    $scope.SOAddressList = res;
+                }
+                else {
+                    $scope.NoReturn = true;
+                }
+            }
+        })
+
+        Common.Services.Call($http, {
+            url: Common.Services.url.MOBI,
+            method: "Mobile_CUSGOPList",
+            data: {
+                masterID: $scope.masterID,
+            },
+            success: function (res) {
+                if (res.length > 0) {
+                    $scope.GOPReturnList = res;
+                }
+                else {
+                    $scope.NoReturn = true;
+                }
+            }
+        })
+
+        Common.Services.Call($http, {
+            url: Common.Services.url.MOBI,
+            method: "Mobile_CUSProductList",
+            data: {
+                masterID: $scope.masterID,
+            },
+            success: function (res) {
+                $ionicLoading.hide();
+                if (res.length > 0) {
+                    $scope.ProductReturnData = res;
+                    $scope.ReloadProduct();
+                }
+                else {
+                    $scope.NoReturn = true;
+                }
             }
         })
     }
     $scope.LoadGOPReturn();
 
     $scope.GOPReturn_Save = function () {
-        $ionicLoading.show();
-        $rootScope.PopupConfirm({
-            title: 'Xác nhận lưu ?',
-            okText: 'Chấp nhận',
-            cancelText: 'Từ chối',
-            ok: function () {
-                $ionicLoading.show();
-                Common.Services.Call($http, {
-                    url: Common.Services.url.MOBI,
-                    method: "Mobile_GOPReturnSave",
-                    data: { masterID: $scope.masterID, item: $scope.GOPItem, locationID: $scope.locationID },
-                    success: function (res) {
-                        $ionicLoading.hide();
-                        $scope.ShowReturnDetail = false;
-                        $scope.LoadGOPReturn();
-                        $scope.GOPCombobox.Clear();
-                    }
-                })
-            }
-        });
+        if ($scope.GOPItem.OrderGroupID > 0 && $scope.GOPItem.GroupProductID > 0 && $scope.GOPItem.ProductID > 0 && $scope.GOPItem.Quantity > 0) {
+            $scope.GOPItem.MasterID = $scope.masterID;
+            $rootScope.PopupConfirm({
+                title: 'Xác nhận lưu ?',
+                okText: 'Chấp nhận',
+                cancelText: 'Từ chối',
+                ok: function () {
+                    $ionicLoading.show();
+                    Common.Services.Call($http, {
+                        url: Common.Services.url.MOBI,
+                        method: "Mobile_GOPReturnSave",
+                        data: { item: $scope.GOPItem },
+                        success: function (res) {
+                            $ionicLoading.hide();
+                            $scope.ShowReturnDetail = false;
+                            $scope.LoadGOPReturn();
+                            $scope.SOAddressCombobox.Clear();
+                            $scope.GOPCombobox.Clear();
+                            $scope.ProductCombobox.Clear();
+                        }
+                    })
+                }
+            });
+        }
+        else {
+            $rootScope.PopupAlert({
+                title: "Chưa điền đủ thông tin",
+                okText: "OK",
+                template: '',
+                ok: function () {
+                },
+            })
+        }
+        
     };
 
     $scope.ReturnAdd = function () {
-        Common.Services.Call($http, {
-            url: Common.Services.url.MOBI,
-            method: "Mobiler_CUSGOPListNotin",
-            data: {
-                masterID: $scope.masterID,
-                locationID: $scope.locationID
-            },
-            success: function (res) {
-                $ionicLoading.hide();
-                if (res.length > 0) {
-                    $scope.ShowReturnDetail = true;
-                    $scope.GOPReturnList = res;
-                }
-                else {
-                    $rootScope.PopupAlert({
-                        title: "Không có hàng trả về mới",
-                        okText: "OK",
-                        template: '',
-                        ok: function () {
-                        },
-                    })
-                }
-            }
-        })
+        if ($scope.NoReturn) {
+            $rootScope.PopupAlert({
+                title: "Không có hàng trả về",
+                okText: "OK",
+                template: '',
+                ok: function () {
+                },
+            })
+        }
+        else {
+            $scope.GOPItem.OrderGroupID = 0;
+            $scope.GOPItem.GroupProductID = 0;
+            $scope.GOPItem.ProductID = 0;
+            $scope.GOPItem.Quantity = '';
+            $scope.ShowReturnDetail = true;
+        }
     };
 
     $scope.GOPReturnCancel = function () {
         $scope.ShowReturnDetail = false;
+        $scope.SOAddressCombobox.Clear();
         $scope.GOPCombobox.Clear();
+        $scope.ProductCombobox.Clear();
     }
 
     $scope.GOPReturnEdit = function (item) {
@@ -229,7 +332,7 @@
         var file = $scope.fileUploads;
         var fd = new FormData();
         fd.append('file', file[0]);
-        $http.post(Common.Services.url.Host + "api/Mobile/SaveImage", fd, {
+        $http.post(Common.Services.url.Host + "/api/Mobile/SaveImage", fd, {
             transformRequest: angular.identity,
             headers: {
                 'Content-Type': undefined,
@@ -292,6 +395,19 @@
         });
     }
 
+    $scope.TempClick = function () {
+        $scope.temp = $scope.CurrentTemperature;
+        $rootScope.PopupConfirmInput({
+            title: 'Thay đổi nhiệt độ hiện tại của xe',
+            okText: 'Đồng ý',
+            cancelText: 'Quay lại',
+            scope: $scope,
+            template: '<div style="margin-top:5px"><input type="number" class="input-temp" placeholder="Nhập nhiệt độ..." type="text" ng-model="temp"> ',
+            ok: function (scope) {
+                $scope.CurrentTemperature = scope.temp;
+            }
+        });
+    }
 
     // Close the modal
     $scope.closeModal = function () {

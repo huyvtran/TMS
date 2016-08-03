@@ -1,8 +1,8 @@
 ﻿/// <reference path="~/Scripts/jquery-1.9.1.intellisense.js" />
 /// <reference path="~/Scripts/kendo/2015.1.429/kendo.all-vsdoc.js" />
 /// <reference path="~/Scripts/common.js" />
-angular.module('myapp').controller('vendor_homeAcceptDetailCtrl', function ($rootScope, $scope, $state, $location, $http, $timeout, $cordovaFileTransfer, $ionicLoading, openMap) {
-    console.log('vendor_homeAcceptDetailCtrl');
+angular.module('myapp').controller('vendor_homeAcceptDetailController', function ($rootScope, $scope, $state, $location, $http, $timeout, $ionicLoading, openMap) {
+    console.log('vendor_homeAcceptDetailController');
 
     $scope.masterID = $state.params.id;
     $scope.AcceptedItem = {};
@@ -31,8 +31,12 @@ angular.module('myapp').controller('vendor_homeAcceptDetailCtrl', function ($roo
     }
     $scope.LoadData();
 
+    $scope.BackToHome = function () {
+        $state.go('vendor.home');
+    }
+
     $scope.AddTrouble = function () {
-        $state.go('vendor.home_Trouble', { masterID: $scope.AcceptedItem.TOMasterID })
+        $state.go('vendor.home_trouble', { masterID: $scope.AcceptedItem.TOMasterID })
     }
 
     $scope.LocationComplete = function (masterID, locationID, statusID) {
@@ -57,12 +61,7 @@ angular.module('myapp').controller('vendor_homeAcceptDetailCtrl', function ($roo
     
     //map
     $scope.ShowMapRoute = function () {
-        $scope.ShowMap = !$scope.ShowMap;
-        navigator.geolocation.getCurrentPosition(function (position) {
-            var icon = openMap.mapStyle.Icon("img/icon_route.png", 1);
-            $rootScope.LogWrite(position.coords.latitude + " - " + position.coords.longitude);
-            $scope.Marker.push(openMap.Marker(position.coords.latitude, position.coords.longitude, "", icon, {}));
-        });
+        $state.go('map', { p0: 1, p1: $scope.AcceptedItem.TOMasterID })
     }
     $scope.CreateMap = function () {
         Common.Log("CreateMap");

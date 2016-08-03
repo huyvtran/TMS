@@ -1,18 +1,17 @@
 ﻿/// <reference path="~/Scripts/jquery-1.9.1.intellisense.js" />
 /// <reference path="~/Scripts/kendo/2015.1.429/kendo.all-vsdoc.js" />
 /// <reference path="~/Scripts/common.js" />
-angular.module('myapp').controller('vendor_homeController', function ($rootScope, $scope, $state, $location, $http, $timeout, $cordovaFileTransfer, $ionicLoading) {
+angular.module('myapp').controller('vendor_homeController', function ($rootScope, $scope, $state, $location, $http, $timeout, $ionicLoading) {
     console.log('vendor_homeController');
     //$rootScope.CustomerID = Common.Auth.Item.CustomerID;
     $scope.selectedTab = 1;
     $scope.reasonID = 0;
 
     $scope.today = new Date();
-    $scope.dateFrom = Common.Date.StartDay($scope.today.addDays(-7));
+    $scope.dateFrom = Common.Date.StartDay($scope.today.addDays(-20));
     $scope.dateTo = Common.Date.EndDay($scope.today.addDays(2));
     $scope._dataHasDNVendor = [];
     $scope._dataHasDNVehicle = [];
-
     $scope.CheckAllLoad = function (stt, callback) {
         $scope.lstCheck[stt] = true;
         var rs = true;
@@ -34,7 +33,8 @@ angular.module('myapp').controller('vendor_homeController', function ($rootScope
             method: "FLMMobileVendor_TenderRequestList",
             data: {
                 dtfrom: $scope.dateFrom,
-                dtto: $scope.dateTo
+                dtto: $scope.dateTo,
+                vendorID:$rootScope.VendorID,
             },
             success: function (res) {
                 $scope.CheckAllLoad(0, function () { $ionicLoading.hide(); $scope.$broadcast('scroll.refreshComplete'); });
@@ -47,7 +47,8 @@ angular.module('myapp').controller('vendor_homeController', function ($rootScope
             method: "FLMMobileVendor_TenderAcceptList",
             data: {
                 dtfrom: $scope.dateFrom,
-                dtto: $scope.dateTo
+                dtto: $scope.dateTo,
+                vendorID: $rootScope.VendorID,
             },
             success: function (res) {
                 $scope.CheckAllLoad(1, function () { $ionicLoading.hide(); $scope.$broadcast('scroll.refreshComplete'); });

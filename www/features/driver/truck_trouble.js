@@ -10,6 +10,12 @@
     $scope.FileList = [];
     $scope.Host = Common.Services.url.Host;
     $scope.zoomphoto = false;
+    var isCO = false;
+    var typeOfFileCode = 'trouble';
+    if ($state.params.type == "container") {
+        typeOfFileCode = 'TroubleCO';
+        isCO = true;
+    }
 
     $scope.LoadTroubleList = function (masterID) {
         Common.Services.Call($http, {
@@ -17,6 +23,7 @@
             method: "FLMMobileDriver_TroubleList",
             data: {
                 masterID: masterID,
+                isCO:isCO
             },
             success: function (res) {
                 $ionicLoading.hide();
@@ -26,7 +33,7 @@
                     Common.Services.Call($http, {
                         url: Common.Services.url.MOBI,
                         method: 'FLMMobileDriver_FileList',
-                        data: { id: o.ID,code:"trouble" },
+                        data: { id: o.ID, code: typeOfFileCode },
                         success: function (res) {
                             o.lstFile = res;
                         }
@@ -41,7 +48,7 @@
         Common.Services.Call($http, {
             url: Common.Services.url.MOBI,
             method: "FLMMobile_GroupTroubleList",
-            data: {},
+            data: { isCo: isCO },
             success: function (res) {
                 $scope.ListGroupTrouble = res;
                 $scope.LoadTroubleList($state.params.masterID);
@@ -51,7 +58,11 @@
     $scope.LoadData();
 
     $scope.SaveTrouble = function () {
-        $scope.TroubleItem.DITOMasterID = $state.params.masterID;
+        if (!isCO)
+            $scope.TroubleItem.DITOMasterID = $state.params.masterID;
+        else
+            $scope.TroubleItem.COTOMasterID = $state.params.masterID;
+
         $rootScope.PopupConfirm({
             title: 'Gửi phát sinh ?',
             template: '',
@@ -59,19 +70,24 @@
             cancelText: 'Từ chối',
             ok: function () {
                 $ionicLoading.show();
-                Common.Services.Call($http, {
-                    url: Common.Services.url.MOBI,
-                    method: "FLMMobile_TroubleSave",
-                    data: { item: $scope.TroubleItem },
-                    success: function (res) {
-                        $ionicLoading.hide();
-                        $rootScope.PopupAlert({
-                            title: 'Thông báo',
-                            template: 'Lưu thành công',
-                            ok: function () { $scope.LoadTroubleList($state.params.masterID); }
-                        })
-                    }
-                })
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    $scope.TroubleItem.Lat = position.coords.latitude;
+                    $scope.TroubleItem.Lng = position.coords.longitude;
+                    Common.Services.Call($http, {
+                        url: Common.Services.url.MOBI,
+                        method: "FLMMobile_TroubleSave",
+                        data: { item: $scope.TroubleItem },
+                        success: function (res) {
+                            $ionicLoading.hide();
+                            $rootScope.PopupAlert({
+                                title: 'Thông báo',
+                                template: 'Lưu thành công',
+                                ok: function () { $scope.LoadTroubleList($state.params.masterID); }
+                            })
+                        }
+                    })
+                });
+                
             }
         });
 
@@ -91,7 +107,7 @@
         })
         .success(function (e) {
             e.ReferID = $scope.uploadItem.ID;
-            e.TypeOfFileCode = 'Trouble';
+            e.TypeOfFileCode = typeOfFileCode;
 
             Common.Services.Call($http, {
                 url: Common.Services.url.SYS,
@@ -109,6 +125,7 @@
         .error(function () {
         });
     }
+
     $scope.BtnUpload = function (item) {
         $scope.uploadItem = item;
         $('#file').click();

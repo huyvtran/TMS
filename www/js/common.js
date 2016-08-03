@@ -9,6 +9,21 @@ var lang = 'vi-VN';
 var Common = {
     LogHistory:[],
     IsReady: false,
+    CATTypeOfFileCode: {
+        NONE: 'None',
+        FUNCTION: 'Function',
+        USER: 'User',
+        CUSTOMER: 'Customer',
+        TROUBLE: 'Trouble',
+        TROUBLECO: 'TroubleCO',
+        COPOD: 'COPOD',
+        DIPOD: 'DIPOD',
+        TEMPLATEREPORT: 'TemplateReport',
+        RECEIPT: 'Receipt',
+        //BOOKINGCONFIRM: 'BookingConfirmation',
+        ORD: 'Order',
+        ImportOPS: 'ImportOPS'
+    },
     Auth: {
         HeaderKey: '',
         Item: null,
@@ -78,7 +93,7 @@ var Common = {
                             if (res.data && res.data.ErrorMessage) {
                                 msgText = res.data.ErrorMessage;
                             }
-                            scope.$root.Message({ Msg: msgText, NotifyType: Common.Message.NotifyType.ERROR });
+                            scope.$root.PopupAlert({ title: msgText });
                         });
                     }, 1);
 
@@ -87,6 +102,17 @@ var Common = {
                 }
 
             }, function errorCallback(res) {
+                setTimeout(function () {
+                    var scope = angular.element($(document).find('[ng-controller=indexController]')).scope()
+                    scope.$apply(function () {
+                        scope.$root.IsLoading = false;
+                        var msgText = res.statusText;
+                        if (res.data && res.data.ErrorMessage) {
+                            msgText = res.data.ErrorMessage;
+                        }
+                        scope.$root.PopupAlert({ title: msgText });
+                    });
+                }, 1);
                 if (Common.HasValue(options.error))
                     options.error(res.data);
             });

@@ -2,7 +2,7 @@
     console.log('driver_summaryController');
 
     $rootScope.DriverID = Common.Auth.Item.DriverID;
-    $scope.selectedTab = 2;
+    $scope.selectedTab = 1;
     $scope.salaryChart = null;
     $scope.performChart = null;
 
@@ -17,7 +17,6 @@
     }
 
     //Performance
-
 
     $scope.myChartOpts = charting.pieChartOptions;
 
@@ -238,6 +237,10 @@
         })
     }
     $scope.LoadData();
+
+    $scope.Master = function (item) {
+        $state.go('driver.summary_master', { timeSheetDriverID: item.TimeSheetDriverID });
+    }
 
     //Incomde
     $scope.salaryData = [[['s',10]]];

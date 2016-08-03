@@ -29,18 +29,17 @@ var _index = {
 };
 //#endregion
 
-angular.module('myapp').controller('indexController', function ($rootScope, $scope, $http, $sce, $location, $ionicLoading, $state, $timeout, $window, $ionicPopup) {
+angular.module('myapp').controller('indexController', function ($rootScope, $scope, $http, $sce, $location, $ionicLoading, $state, $timeout, $interval, $window, $ionicPopup) {
 	$scope.modelUsername = '';
     $scope.modelPassword = '';
     $rootScope.DriverItem = {};
     $rootScope.DriverID = 0;
     $rootScope.showMenuIcon = true;
-	
     $scope.eventLogin = function ($event) {
         $event.preventDefault();
         
-		var username = this.modelUsername.trim();
-		var password = this.modelPassword.trim();		
+        var username = this.modelUsername.trim().toLowerCase();
+        var password = this.modelPassword.trim().toLowerCase();
 		$scope._username = username;
 		$scope._password = password;
 		
@@ -60,7 +59,7 @@ angular.module('myapp').controller('indexController', function ($rootScope, $sco
             }
 			
 			$scope._tag = '';
-            if (ix > 0) {
+			if (ix > 0) {
                 var route = username.substr(0, ix);
 				$scope._tag = route;
 				$scope._username = username.substr(ix + 1);
@@ -75,7 +74,6 @@ angular.module('myapp').controller('indexController', function ($rootScope, $sco
 			}
 			
             $ionicLoading.show({ template: 'Loading...' });
-            
             Common.Services.Call($http, {
                 url: Common.Services.url.SYS,
                 method: _index.URL.Connect,
@@ -90,10 +88,14 @@ angular.module('myapp').controller('indexController', function ($rootScope, $sco
                             $ionicLoading.hide();
 							
                             if (Common.HasValue(res) && res.UserID > 0) {
-								location.href = 'index_' + $scope._tag + '.html?p=' + res.HeaderKey;								
+                                location.href = 'index_.html?d=' + $scope._tag + '?p=' + res.HeaderKey;
+								//location.href = 'index_' + $scope._tag + '.html?p=' + res.HeaderKey;								
                             }
                             else {
-                                $scope.ErrorStr = "Sai tài khoản hoặc mật khẩu!"
+                                $rootScope.PopupAlert({
+                                    template: 'Sai tài khoản hoặc mật khẩu!',
+                                    ok: function () { location.href = 'index.html' }
+                                });
                             }
                         }
                     });
@@ -101,12 +103,16 @@ angular.module('myapp').controller('indexController', function ($rootScope, $sco
                 },
                 error: function (res) {					
                     $ionicLoading.hide();
-					$rootScope.PopupAlert({template:'Không kết nối được hệ thống'});
+                    $rootScope.PopupAlert({
+                        template: 'Không kết nối được hệ thống',
+                        ok: function () { location.href = 'index.html' }
+                    });
+                    
                 }
             });
         }
         else {
-            $scope.ErrorStr = "Thiếu tài khoản hoặc mật khẩu!"
+            $scope.ErrorStr = "Thiếu tài khoản hoặc mật khẩu!";
         }
     }
 
@@ -200,5 +206,7 @@ angular.module('myapp').controller('indexController', function ($rootScope, $sco
         });
         return alertPopup
     };
+
+
 });
 

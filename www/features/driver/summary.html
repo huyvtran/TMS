@@ -34,9 +34,9 @@
                     <ion-refresher pulling-text="{{PullText}}"
                                    on-refresh="LoadData()">
                     </ion-refresher>
-                    <div class="master" ng-repeat="o in HistoryList">
+                    <div class="master" ng-repeat="o in HistoryList" ng-click="Master(o)">
                         <div class="master-header">
-                            <div style="height:42px;width:42px;background-image:url('img/pcon.png');background-size: 42px 42px;padding: 4px 0px 0px 2px;" ><img src="img/ico_truck.png" /></div>
+                            <div><div class="master-icon"><img src="img/ico_truck.png" /></div></div>
                             <div class="master-header-mid" style="padding-left: 20px;">
                                 <strong style="font-size:15px;">{{o.MasterCode}}</strong> <br />
                                 <span style="font-size:12px;">{{o.RegNo}}</span>
@@ -46,6 +46,7 @@
                                 <span style="font-size:13px;">Khối: {{o.CBM}}</span>
                             </div>
                         </div>
+                        <div class="master-etime"><div>{{o.DateFrom | date:'HH:mm dd/MM'}}</div></div>
                         <div class="master-control" style="margin: 10px 0px 15px 0px;">
                             <div ng-show="!o.IsReject" class="seagreen" style="width:50%"><div><img style="max-height:35px;max-width:35px;margin-right: 35px;" src="img/icheck.png" /> Thành công</div></div>
                             <div ng-show="o.IsReject" class="radicalred" style="width:50%;"><div><img style="max-height:35px;max-width:35px;margin-right: 35px;" src="img/iclose.png" /> Hủy</div></div>
@@ -125,4 +126,12 @@
         </div>
     </ion-content>
 </ion-view>
+<style>
+    .location-time { color: #ababab; font-size: 12px; }
+    .master-etime { font-size: 12px; color: #ef6969; width: 100%; line-height: 22px; text-align: center; background-color: #fff; padding-left: 8px; padding-top: 3px; }
+        .master-etime > div { text-align: center; width: 50%; display: inline-block; }
+        .master-etime i { color: #757575; float: left; }
+    input.input-temp { background-color: #3fafff; color: #fff; text-indent: 5px; }
+    .input-temp::-webkit-input-placeholder { color: #fff; text-indent: 5px; }
+</style>
 

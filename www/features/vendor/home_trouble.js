@@ -1,5 +1,5 @@
-﻿angular.module('myapp').controller('vendor_homeTroubleCtrl', function ($rootScope, $scope, $state, $location, $http, $timeout, $ionicLoading, $ionicSideMenuDelegate, $ionicModal) {
-    console.log('vendor_homeTroubleCtrl');
+﻿angular.module('myapp').controller('vendor_homeTroubleController', function ($rootScope, $scope, $state, $location, $http, $timeout, $ionicLoading, $ionicSideMenuDelegate, $ionicModal) {
+    console.log('vendor_homeTroubleController');
 
     $ionicSideMenuDelegate.canDragContent(false)
     $scope.TroubleItem = {};

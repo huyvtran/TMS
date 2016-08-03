@@ -3,7 +3,7 @@
 /// <reference path="~/Scripts/ol3/ol.js" />
 angular.module('myapp').factory('openMap', function () {
     var apiUrl = {
-        viaroute: '//router.project-osrm.org/viaroute?loc=',
+        viaroute: 'http://router.project-osrm.org/viaroute?loc=',
         geojson: 'http://global.mapit.mysociety.org/area/',
         suffix: '.geojson?simplify_tolerance=0.0001',
         instructions: '&instructions=true'
@@ -36,7 +36,12 @@ angular.module('myapp').factory('openMap', function () {
             mapQuest: new ol.layer.Tile({
                 source: new ol.source.MapQuest({ layer: 'osm' })
             }),
-            //google: new olgm.layer.Google() //Google maps token required
+            google: new olgm.layer.Google(), //Google maps token required
+            mapBox: new ol.layer.Tile({
+                source: new ol.source.XYZ({
+                    url: 'https://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiaHVuZ2hvYW5nc21sIiwiYSI6ImNpcWx5OWhoMTAwYXZmcG5oOWZvcHI3eTYifQ.hKLiBbe5enCLWitk9OsKtQ'
+                })
+            })
         }
         this.mapColor = {
             aqua: '#00FFFF', black: '#000000', blue: '#0000FF', brown: '#A52A2A', coral: '#FF7F50',
@@ -74,7 +79,8 @@ angular.module('myapp').factory('openMap', function () {
                     stroke: new ol.style.Stroke({
                         color: 'white', width: 2
                     })
-                })
+                }),
+                zIndex: 4
             }),
             Icon: function (src, opacity, zindex) {
                 return new ol.style.Style({
@@ -112,10 +118,10 @@ angular.module('myapp').factory('openMap', function () {
                     zIndex: zindex || 2
                 });
             },
-            Line: function (width, color, opacity, text, textcolor, rotation, zindex) {
+            Line: function (width, color, opacity, text, textcolor, rotation, dash, zindex) {
                 return new ol.style.Style({
                     stroke: new ol.style.Stroke({
-                        color: color, width: width
+                        color: color, width: width, lineDash: dash
                     }),
                     text: new ol.style.Text({
                         text: text,
@@ -125,7 +131,7 @@ angular.module('myapp').factory('openMap', function () {
                         rotation: rotation || 0,
                         textBaseline: 'top'
                     }),
-                    zIndex: zindex || 3
+                    zIndex: zindex || Infinity
                 });
             },
             Polygon: function (width, color, opacity, text, textcolor, zindex) {
@@ -238,13 +244,30 @@ angular.module('myapp').factory('openMap', function () {
                 var mapView = new ol.View({
                     center: this.Point(options.Lat, options.Lng), zoom: options.Zoom, maxZoom: me.maxZoom
                 });
+                var vPoint = new ol.layer.Vector({
+                    source: new ol.source.Vector({
+                        features: []
+                    })
+                });
+                vPoint.setZIndex(99);
+                vPoint.set('Name', 'MapMarker');
+
+                var vRoute = new ol.layer.Vector({
+                    source: new ol.source.Vector({
+                        features: []
+                    })
+                });
+                vRoute.setZIndex(89);
+                vRoute.set('Name', 'MapRoute');
+                var mLayer = [me.mapTile.mapBox, vPoint, vRoute];
                 me.map = new ol.Map({
-                    layers: [options.Tile], view: mapView, target: options.Element
+                    layers: mLayer, view: mapView, target: options.Element
+                    //layers: [me.mapTile.google], view: mapView, target: options.Element
                 });
 
                 ////Google maps
-                //var olGM = new olgm.OLGoogleMaps({ map: map });
-                //olGM.activate();
+                var olGM = new olgm.OLGoogleMaps({ map: me.map });
+                olGM.activate();
 
                 me.map.on('click', function (e) {
                     var flag = false;

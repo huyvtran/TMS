@@ -9,15 +9,19 @@ angular.module('myapp').controller('mainController', function ($rootScope, $scop
             $rootScope.MenuList = [
                 { Href: 'driver.truck', Src: 'img/ipack.png', Text: 'ĐƠN HÀNG' }, 
                 { Href: 'driver.summary', Src: 'img/isummary.png', Text: 'THỐNG KÊ' },
+                { Href: 'driver.problem', Src: 'img/isummary.png', Text: 'SỰ CỐ' },
                 { Href: 'driver.info', Src: 'img/iaccount.png', Text: 'TÀI KHOẢN' }
             ]
         }
         if (item.URL == 'vendor') {
-			str = 'vendor.home';
+			str = 'vendor';
             $rootScope.MenuList = [
                 { Href: 'vendor.home', Src: 'img/ipack.png', Text: 'ĐƠN HÀNG' },
                 { Href: 'vendor.info', Src: 'img/iaccount.png', Text: 'TÀI KHOẢN' }
             ]
+        }
+        if (item.URL == 'manager') {
+            str = 'manage';
         }
         $state.go(str);
     };

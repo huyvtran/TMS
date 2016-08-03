@@ -1,87 +1,103 @@
 ﻿<ion-view hide-nav-bar="true">
     <ion-content class="" scroll="false">
-        <div class="cus-nav-bar">
-            <div class="cus-nav-left">
-                <button class="button" ng-click="BackToTruck()"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
-            </div>
-            <div class="cus-nav-right">
-                <button class="button" ng-click="ReturnAdd()" ng-show="selectedTab==2 && ShowReturnDetail==false"><i class="fa fa-plus" aria-hidden="true"></i></button>
-            </div>
-            <div class="cus-nav-mid">
-                <span class="cus-nav-title">Danh sách SO</span>
+        <div class="bar bar-header bar-calm">
+            <button class="button button-clear" ng-click="BackToTruck()"><img src="img/back.png" /></button>
+            <h1 class="title">Danh sách SO</h1>
+            <button ng-show="selectedTab==2 && ShowReturnDetail==false" class="button button-clear" ng-click="ReturnAdd()"><i class="fa fa-plus" aria-hidden="true"></i></button>
+        </div>
+        <div style="height:100%;" class="content has-header">
+            <div class="itab">
+                <ul class="itab-title">
+                    <li ng-class="{'tab-noactive': selectedTab!=1}" ng-click="SwicthTab(1)">Danh sách SO</li>
+                    <li ng-class="{'tab-noactive': selectedTab!=2}" ng-click="SwicthTab(2)">Hàng trả về</li>
+                </ul>
+                <ul class="itab-footer">
+                    <li ng-class="{ 'tab-active': selectedTab==1}" ng-click="selectedTab=1"></li>
+                    <li ng-class="{ 'tab-active': selectedTab==2}" ng-click="selectedTab=2"></li>
+                </ul>
+                <div ng-show="selectedTab==1" class="">
+                    <ion-scroll style="height:100vh">
+                        <div class="bar-status" ng-click="LocationComplete()">
+                            <div ng-class="{'status-active':statusID == 1}">Đến</div>
+                            <div ng-class="{'status-active':statusID == 2}">Vào máng</div>
+                            <div ng-class="{'status-active':statusID == 3}">Ra máng</div>
+                            <div ng-class="{'status-active':statusID == 4}">Rời</div>
+                        </div>
+                        <div class="bar-status" ng-click="TempClick()">
+                            <div><i class="icon ion-thermometer"></i> Nhiệt độ hiện tại: {{CurrentTemperature}}</div>
+                        </div>
+                        <ion-list>
+                            <ion-item ng-repeat="item in SOList" class="nopadding">
+                                <div class="cus-table" style="padding:10px 10px 5px 5px;line-height:10px;font-size:13px;color:#41484b;">
+                                    <div style="width:50%">Mã SO:{{item.SOCode}}</div>
+                                    <div style="width:25%">Tấn:{{item.Ton}}</div>
+                                    <div style="width:25%">Khối:{{item.CBM}}</div>
+                                </div>
+                                <ion-scroll direction="x" class="item wide-item" style="border:none;padding-bottom: 5px;">
+                                    <div class="slide-img">
+                                        <div ng-click="BtnUpload(item)" style="background-color: grey;overflow: hidden;display:inline-block;">
+                                            <img style="display:table-cell;margin: 20px 0px 0px 15px;" src="img/icam.png" />
+                                        </div>
+                                        <div ng-repeat="p in item.lstFile">
+                                            <img class="miniphoto" ng-click="showImages($index,item.lstFile)" src="{{Host}}/{{p.FilePath}}" alt="{{p.FileName}}" title="{{p.FileName}}" />
+                                        </div>
+                                    </div>
+                                </ion-scroll>
+                                <span style="font-size:12px;color:#8e9699;line-height: 10px;">&nbsp;&nbsp;Chụp hóa đơn chứng từ</span>
+                                <div class="div-empty h10p"></div>
+                            </ion-item>
+                        </ion-list>
+                        <div class="div-empty h110p"></div>
+                    </ion-scroll>
+                </div>
+                <div class="" ng-show="selectedTab==2" style="height: 100%;">
+                    <div>
+                        <ion-list>
+                            <ion-item ng-repeat="o in ReturnList" ng-click="GOPReturnEdit(o)">
+                                <div style="float:left;width: 70%;overflow: hidden;text-overflow: ellipsis;">Nhóm hàng {{o.GroupProductName}} <br /> Hàng hóa: {{o.ProductName}} <br />Ghi chú: {{o.Note}}</div>
+                                <div style="float:right">{{o.Quantity}} cái</div>
+                            </ion-item>
+                        </ion-list>
+                    </div>
+                    <!--edit popup-->
+                    <div class="return-edit" ng-class="{'show-info':ShowReturnDetail==true}">
+                        <div class="div-empty bgr-grey h10p"></div>
+                        <div class="button-bar">
+                            <a class="button button-positive" ng-click="GOPReturn_Save()">Lưu</a>
+                            <a class="button button-outline button-assertive" ng-click="GOPReturnCancel()">Quay lại</a>
+                        </div>
+                        <multiselect m-this="SOAddressCombobox" m-data="SOAddressList" m-text-field="Text" m-value-field="ValueInt" m-model="GOPItem.OrderGroupID" m-placeholder="Địa chỉ"></multiselect>
+                        <multiselect m-this="GOPCombobox" m-data="GOPReturnList" m-text-field="Text" m-value-field="ValueInt" m-model="GOPItem.GroupProductID" m-placeholder="Chọn nhóm hàng hóa" m-call-back="ReloadProduct()"></multiselect>
+                        <multiselect m-this="ProductCombobox" m-data="ProductReturnList" m-text-field="ProductName" m-value-field="ID" m-model="GOPItem.ProductID" m-placeholder="Chọn hàng hóa"></multiselect>
+
+                        <input class="cus-textbox" type='text' ng-model="GOPItem.Quantity" placeholder="  Số lượng" />
+                        <input class="cus-textbox" type='text' ng-model="GOPItem.Note" placeholder="  Ghi chú" />
+                    </div>
+                </div>
             </div>
         </div>
         <input id='file' type="file" style="display: none;" onchange="angular.element(this).scope().filesChanged(this)" />
-        <div class="itab">
-            <ul class="itab-title">
-                <li ng-class="{'tab-noactive': selectedTab!=1}" ng-click="SwicthTab(1)">Danh sách SO</li>
-                <li ng-class="{'tab-noactive': selectedTab!=2}" ng-click="SwicthTab(2)">Hàng trả về</li>
-            </ul>
-            <ul class="itab-footer">
-                <li ng-class="{ 'tab-active': selectedTab==1}" ng-click="selectedTab=1"></li>
-                <li ng-class="{ 'tab-active': selectedTab==2}" ng-click="selectedTab=2"></li>
-            </ul>
-            <div ng-show="selectedTab==1" class="">
-                <ion-scroll style="height:100vh">
-                    <div class="bar-status" ng-click="LocationComplete()">
-                        <div ng-class="{'status-active':statusID == 1}">Đến</div>
-                        <div ng-class="{'status-active':statusID == 2}">Vào máng</div>
-                        <div ng-class="{'status-active':statusID == 3}">Ra máng</div>
-                        <div ng-class="{'status-active':statusID == 4}">Rời</div>
-                    </div>
-                    <ion-list>
-                        <ion-item ng-repeat="item in SOList" class="nopadding">
-                            <div class="cus-table" style="padding:10px 10px 5px 5px;line-height:10px;font-size:13px;color:#41484b;">
-                                <div style="width:50%">Mã SO:{{item.SOCode}}</div>
-                                <div style="width:25%">Tấn:{{item.Ton}}</div>
-                                <div style="width:25%">Khối:{{item.CBM}}</div>
-                            </div>
-                            <ion-scroll direction="x" class="item wide-item" style="border:none;padding-bottom: 5px;">
-                                <div class="slide-img">
-                                    <div ng-click="BtnUpload(item)" style="background-color: grey;overflow: hidden;display:inline-block;">
-                                        <img style="display:table-cell;margin: 20px 0px 0px 15px;" src="img/icam.png" />
-                                    </div>
-                                    <div ng-repeat="p in item.lstFile">
-                                        <img class="miniphoto" ng-click="showImages($index,item.lstFile)" src="{{Host}}{{p.FilePath}}" alt="{{p.FileName}}" title="{{p.FileName}}" />
-                                    </div>
-                                </div>
-                            </ion-scroll>
-                            <span style="font-size:12px;color:#8e9699;line-height: 10px;">&nbsp;&nbsp;Chụp hóa đơn chứng từ</span>
-                            <div class="div-empty h10p"></div>
-                        </ion-item>
-                    </ion-list>
-                    <div class="div-empty h110p"></div>
-                </ion-scroll>
-            </div>
-            <div class="" ng-show="selectedTab==2" style="height: 100%;">
-                <div>
-                    <ion-list>
-                        <ion-item ng-repeat="o in ReturnList" ng-click="GOPReturnEdit(o)">
-                            <div style="float:left;width: 70%;overflow: hidden;text-overflow: ellipsis;">Loại hàng {{o.GroupProductName}} <br />Ghi chú: {{o.Note}}</div>
-                            <div style="float:right">{{o.Quantity}} cái</div>
-                        </ion-item>
-                    </ion-list>
-                </div>
-                <!--edit popup-->
-                <div class="return-edit" ng-class="{'show-info':ShowReturnDetail==true}">
-                    <div class="div-empty bgr-grey h10p"></div>
-                    <div class="button-bar">
-                        <a class="button button-positive" ng-click="GOPReturn_Save()">Lưu</a>
-                        <a class="button button-outline button-assertive" ng-click="GOPReturnCancel()">Quay lại</a>
-                    </div>
-                    <multiselect m-this="GOPCombobox" m-data="GOPReturnList" m-text-field="GroupName" m-value-field="ID" m-model="GOPItem.GroupProductID" m-placeholder="Chọn hàng trả về"></multiselect>
-                    <input class="cus-textbox" type='text' ng-model="GOPItem.Quantity" placeholder="  Số lượng" />
-                    <input class="cus-textbox" type='text' ng-model="GOPItem.Note" placeholder="  Ghi chú" />
-                </div>
-            </div>
-        </div>
+        
     </ion-content>
 </ion-view>
-
+<script type="text/ng-template" id="tpl.html">
+    <div class="select">
+        <input ng-readonly="true" ng-click="toggleSelect()" class="cus-textbox" type='text' ng-model="DisplayText" placeholder="{{mPlaceholder}}" />
+        <div class="cbb-popup" ng-show="isPopupVisible">
+            <ion-scroll style="max-height:100px">
+                <ion-item style="line-height: 0px;" ng-repeat="o in Data" ng-click="SelectItem(o)">
+                    {{o.text}}
+                </ion-item>
+            </ion-scroll>
+        </div>
+    </div>
+</script>
 <style>
-    .select { width: 100%; max-height: 300px; position: relative;z-index:1000; }
+    .select { width: 100%; max-height: 300px; position: relative;}
     .cbb-popup { margin: 0; background: #fff; border: 1px solid #aaa; box-shadow: 0 4px 5px rgba(0,0,0,.15); z-index: 1010; width: 100%; padding: 0px; border-radius: 4px; margin-top: 1px; position: absolute; }
 
     .return-edit{position:absolute;width:100%;height:300px;bottom:-310px;z-index:100;-webkit-transition: bottom 0.5s;transition: bottom .5s;}
     .return-edit.show-info {bottom:0px;}
+    input.input-temp { background-color: #3fafff; color: #fff;text-indent:5px; }
+    .input-temp::-webkit-input-placeholder {color:#fff;text-indent:5px; }
 </style>

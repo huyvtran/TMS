@@ -18,7 +18,7 @@
                     </ion-refresher>
                     <div class="master" ng-repeat="o in RequestList">
                         <div class="master-header" ui-sref="vendor.home_detail({id:o.TOMasterID,venid:o.CreateVendorID})">
-                            <div class=""><img style="max-height:35px;max-width:35px;" src="img/pcon.png" /></div>
+                            <div><div class="master-icon"><img src="img/ico_truck.png" /></div></div>
                             <div class="master-header-mid">
                                 <strong style="font-size:15px;">{{o.MasterCode}}</strong> <br />
                                 <span style="font-size:12px;">{{o.CreateVehicleCode}}</span>
@@ -59,7 +59,7 @@
                     </ion-refresher>
                     <div class="master" ng-repeat="o in AcceptList">
                         <div class="master-header">
-                            <div style="height:42px;width:42px;background-image:url('img/pcon.png');background-size: 42px 42px;padding: 4px 0px 0px 2px;"><img src="img/ico_truck.png" /></div>
+                            <div><div class="master-icon"><img src="img/ico_truck.png" /></div></div>
                             <div class="master-header-mid">
                                 <strong style="font-size:15px;">{{o.MasterCode}}</strong> <br />
                                 <span style="font-size:12px;">{{o.CreateVehicleCode}}</span>
@@ -99,7 +99,7 @@
                     </ion-refresher>
                     <div class="master" ng-repeat="o in RejectList">
                         <div class="master-header" ui-sref="vendor.home_detail({id:o.TOMasterID,venid:o.CreateVendorID})">
-                            <div class=""><img style="max-height:35px;max-width:35px;" src="img/pcon.png" /></div>
+                            <div><div class="master-icon"><img src="img/ico_truck.png" /></div></div>
                             <div class="master-header-mid">
                                 <strong style="font-size:15px;">{{o.MasterCode}}</strong> <br />
                                 <span style="font-size:12px;">{{o.CreateVehicleCode}}</span>

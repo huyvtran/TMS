@@ -1,4 +1,4 @@
-﻿angular.module('myapp').controller('driver_infoController', function ($rootScope, $scope, $ionicLoading, $state, $location, $http, $timeout, $cordovaBarcodeScanner, $ionicPopup) {
+﻿angular.module('myapp').controller('driver_infoController', function ($rootScope, $scope,$window, $ionicLoading, $state, $location, $http, $timeout, $ionicPopup) {
     console.log('driver_infoController');
 
     $scope.show = {
@@ -19,7 +19,7 @@
 
 
     }
-    $scope.Init();
+    //$scope.Init();
 
     $scope.LogOut = function () {
         $rootScope.PopupConfirm({
@@ -27,7 +27,7 @@
             okText: 'Chấp nhận',
             cancelText: 'Từ chối',
             ok: function () {
-                $state.go('login');
+                location.href = 'index.html';
             }
         });
     }

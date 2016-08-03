@@ -1,5 +1,5 @@
-﻿angular.module('myapp').controller('vendor_homeSODetail', function ($rootScope, $scope, $state, $stateParams, $location, $http, $timeout, $ionicLoading, $ionicModal, $cordovaFileTransfer) {
-    console.log('vendor_homeSODetail');
+﻿angular.module('myapp').controller('vendor_homeSODetailController', function ($rootScope, $scope, $state, $stateParams, $location, $http, $timeout, $ionicLoading, $ionicModal) {
+    console.log('vendor_homeSODetailController');
 
     $scope.masterID = $stateParams.masterID;
     $scope.locationID = $stateParams.locationID;
@@ -148,29 +148,6 @@
                     chunkedMode: false,
                     mimeType: "image/jpg"
                 };
-
-                $cordovaFileTransfer.upload(server, filePath, options).then(function (e) {
-                    e.ReferID = $scope.uploadItem.ID;
-                    e.TypeOfFileCode = 'DIPOD';
-
-                    Common.Services.Call($http, {
-                        url: Common.Services.url.SYS,
-                        method: 'App_FileSave',
-                        data: { item: e },
-                        success: function (res) {
-                            $rootScope.PopupAlert({
-                                title: 'Thông báo',
-                                template: 'Lưu thành công',
-                                ok: function () { $scope.LoadSO(); }
-                            })
-                        }
-                    });
-                }, function (err) {
-                    $rootScope.LogWrite("ERROR: " + JSON.stringify(err));
-                    //alert(JSON.stringify(err));
-                }, function (progress) {
-                    // constant progress updates
-                });
             }, 100)
 
             
