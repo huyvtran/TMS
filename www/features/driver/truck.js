@@ -146,27 +146,23 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
             if ($scope.AcceptedItem.IsContainer) {
 
                 $scope.LoadListNextStation = function () {
-                    Common.Services.Call($http, {
-                        url: Common.Services.url.MOBI,
-                        method: "FLMMobileDriver_COStationlist",
-                        data: { masterID: $scope.AcceptedItem.TOMasterID },
-                        success: function (res) {
-                            var lst = []
-                            angular.forEach(res, function (o, i) {
-                                lst.push({
-                                    Lat: o.Lat,
-                                    Lng: o.Lng,
-                                    Radius: 0.05,
-                                    IsEnter: false,
-                                    Item: o,
-                                    EnterParams: { masterID: $scope.AcceptedItem.TOMasterID, o: o },
-                                    Enter: $scope.COStationPass,
-                                })
+                    localDb.FLMMobileDriverCOStationlist($scope.AcceptedItem.TOMasterID).then(function (res) {
+                        var lst = []
+                        angular.forEach(res, function (o, index) {
+                            lst.push({
+                                Lat: o.Lat,
+                                Lng: o.Lat,
+                                Radius: 0.05,
+                                IsEnter: false,
+                                Item: o,
+                                EnterParams: { masterID: $scope.AcceptedItem.TOMasterID, o: o },
+                                Enter: $scope.COStationPass,
                             })
-                            $rootScope.IndexOfList.COStation = $rootScope.AddGeofence(lst, $rootScope.IndexOfList.COStation);
-                        }
+                        })
+                        $rootScope.IndexOfList.COStation = $rootScope.AddGeofence(lst, $rootScope.IndexOfList.COStation);
                     })
                 }
+
                 $scope.LoadListNextStation();
 
                 $scope.ListLocationFrom = $scope.AcceptedItem.lstLocationFrom;
@@ -243,27 +239,23 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
             else {
 
                 $scope.LoadListNextStation = function () {
-                    Common.Services.Call($http, {
-                        url: Common.Services.url.MOBI,
-                        method: "FLMMobileDriver_Stationlist",
-                        data: { masterID: $scope.AcceptedItem.TOMasterID },
-                        success: function (res) {
-                            var lst = []
-                            angular.forEach(res, function (o, i) {
-                                lst.push({
-                                    Lat: o.Lat,
-                                    Lng: o.Lng,
-                                    Radius: 0.05,
-                                    IsEnter: false,
-                                    Item: o,
-                                    EnterParams: { masterID: $scope.AcceptedItem.TOMasterID, o: o },
-                                    Enter: $scope.DIStationPass,
-                                })
+                    localDb.FLMMobileDriverCOStationlist($scope.AcceptedItem.TOMasterID).then(function (res) {
+                        var lst = []
+                        angular.forEach(res, function (o, index) {
+                            lst.push({
+                                Lat: o.Lat,
+                                Lng: o.Lat,
+                                Radius: 0.05,
+                                IsEnter: false,
+                                Item: o,
+                                EnterParams: { masterID: $scope.AcceptedItem.TOMasterID, o: o },
+                                Enter: $scope.DIStationPass,
                             })
-                            $rootScope.IndexOfList.Station = $rootScope.AddGeofence(lst, $rootScope.IndexOfList.Station);
-                        }
-                    })
+                        })
+                        $rootScope.IndexOfList.Station = $rootScope.AddGeofence(lst, $rootScope.IndexOfList.Station);
+                    })                    
                 }
+
                 $scope.LoadListNextStation();
 
                 //geofence diem lay hang
@@ -307,52 +299,11 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
     $scope.DIStationPass = function (param) {
         if ($rootScope.IsCallServer == false) {
             $rootScope.IsCallServer = true;
-            Common.Services.Call($http, {
-                url: Common.Services.url.MOBI,
-                method: "FLMMobileDriver_StationPass",
-                data: {
-                    masterID: param.masterID,
-                    stationID: param.o.LocationID,
-                },
-                success: function (res) {
-                    $rootScope.IsCallServer = false;
-                    if (res < 0) {
-                        $rootScope.RemoveGeofence($rootScope.IndexOfList.Station);
-                        $scope.LoadListNextStation();
-                        var isBackgroundMode = false;
-                        try {
-                            isBackgroundMode = cordova.plugins.backgroundMode.isActive();
-                        } catch (e) {
-                            isBackgroundMode = false;
-                        }
-                        if (isBackgroundMode) {
-                            cordova.plugins.notification.local.schedule({
-                                id: 10,
-                                title: "STM GPS",
-                                text: 'Vừa qua trạm ' + param.o.LocationName,
-                            });
-                        }
-                        else {
-                            $rootScope.PopupAlert({
-                                title: 'GPS',
-                                template: 'Vừa qua trạm ' + param.o.LocationName,
-                            });
-                        }
-                    }
-                }
-            });
-        }
-    };
-
-    $scope.DILocationAutoComplete = function (param) {
-        if ($rootScope.IsCallServer == false) {
-            $rootScope.IsCallServer = true;
-            Common.Services.Call($http, {
-                url: Common.Services.url.MOBI,
-                method: "FLMMobileStatus_Save",
-                data: { timesheetID: param.timesheetID, timedriverID: param.timedriverID, masterID: param.masterID, locationID: param.o.LocationID },
-                success: function (res) {
-                    $rootScope.IsCallServer = false;
+            localDb.FLMMobileDriverStationPass(param.masterID, param.o.LocationID).then(function (res) {
+                $rootScope.IsCallServer = false;
+                if (res < 0) {
+                    $rootScope.RemoveGeofence($rootScope.IndexOfList.Station);
+                    $scope.LoadListNextStation();
                     var isBackgroundMode = false;
                     try {
                         isBackgroundMode = cordova.plugins.backgroundMode.isActive();
@@ -363,20 +314,49 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
                         cordova.plugins.notification.local.schedule({
                             id: 10,
                             title: "STM GPS",
-                            text: 'Đã đến ' + param.o.LocationName + '(' + param.o.LocationAddress + ')',
+                            text: 'Vừa qua trạm ' + param.o.LocationName,
                         });
                     }
                     else {
                         $rootScope.PopupAlert({
                             title: 'GPS',
-                            template: 'Đã đến ' + param.o.LocationName + '(' + param.o.LocationAddress + ')',
+                            template: 'Vừa qua trạm ' + param.o.LocationName,
                         });
                     }
-                    $rootScope.RemoveGeofence($rootScope.IndexOfList.Station);
-                    $rootScope.RemoveGeofence($rootScope.IndexOfList.LocationFrom);
-                    $rootScope.RemoveGeofence($rootScope.IndexOfList.LocationTo);
-                    $scope.LoadData();
                 }
+            })
+        }
+    };
+
+    $scope.DILocationAutoComplete = function (param) {
+        if ($rootScope.IsCallServer == false) {
+            $rootScope.IsCallServer = true;
+            
+            localDb.FLMMobileStatusSave(param.timesheetID, param.timedriverID, param.masterID, param.o.LocationID, 0).then(function (res) {
+                $rootScope.IsCallServer = false;
+                var isBackgroundMode = false;
+                try {
+                    isBackgroundMode = cordova.plugins.backgroundMode.isActive();
+                } catch (e) {
+                    isBackgroundMode = false;
+                }
+                if (isBackgroundMode) {
+                    cordova.plugins.notification.local.schedule({
+                        id: 10,
+                        title: "STM GPS",
+                        text: 'Đã đến ' + param.o.LocationName + '(' + param.o.LocationAddress + ')',
+                    });
+                }
+                else {
+                    $rootScope.PopupAlert({
+                        title: 'GPS',
+                        template: 'Đã đến ' + param.o.LocationName + '(' + param.o.LocationAddress + ')',
+                    });
+                }
+                $rootScope.RemoveGeofence($rootScope.IndexOfList.Station);
+                $rootScope.RemoveGeofence($rootScope.IndexOfList.LocationFrom);
+                $rootScope.RemoveGeofence($rootScope.IndexOfList.LocationTo);
+                $scope.LoadData();
             })
         }
     };
@@ -384,53 +364,11 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
     $scope.COStationPass = function (param) {
         if ($rootScope.IsCallServer == false) {
             $rootScope.IsCallServer = true;
-            Common.Services.Call($http, {
-                url: Common.Services.url.MOBI,
-                method: "FLMMobileDriver_COStationPass",
-                data: {
-                    masterID: param.masterID,
-                    stationID: param.o.LocationID,
-                },
-                success: function (res) {
-                    $rootScope.IsCallServer = false;
-                    if (res < 0) {
-                        $rootScope.RemoveGeofence($rootScope.IndexOfList.COStation);
-                        $scope.LoadListNextStation();
-                        var isBackgroundMode = false;
-                        try {
-                            isBackgroundMode = cordova.plugins.backgroundMode.isActive();
-                        } catch (e) {
-                            isBackgroundMode = false;
-                        }
-                        if (isBackgroundMode) {
-                            cordova.plugins.notification.local.schedule({
-                                id: 10,
-                                title: "STM GPS",
-                                text: 'Vừa qua trạm ' + param.o.LocationName,
-                            });
-                        }
-                        else {
-                            $rootScope.PopupAlert({
-                                title: 'GPS',
-                                template: 'Vừa qua trạm ' + param.o.LocationName,
-                            });
-                        }
-
-                    }
-                }
-            });
-        }
-    };
-
-    $scope.COLocationAutoComplete = function (param) {
-        if ($rootScope.IsCallServer == false) {
-            $rootScope.IsCallServer = true;
-            Common.Services.Call($http, {
-                url: Common.Services.url.MOBI,
-                method: "FLMMobileStatus_COSave",
-                data: { timesheetID: param.timesheetID, masterID: param.masterID, locationID: param.o.LocationID, romoocID: param.romoocID },
-                success: function (res) {
-                    $rootScope.IsCallServer = false;
+            localDb.FLMMobileDriverCOStationPass(param.masterID, param.o.LocationID).then(function (res) {
+                $rootScope.IsCallServer = false;
+                if (res < 0) {
+                    $rootScope.RemoveGeofence($rootScope.IndexOfList.COStation);
+                    $scope.LoadListNextStation();
                     var isBackgroundMode = false;
                     try {
                         isBackgroundMode = cordova.plugins.backgroundMode.isActive();
@@ -441,22 +379,52 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
                         cordova.plugins.notification.local.schedule({
                             id: 10,
                             title: "STM GPS",
-                            text: 'Đã đến ' + param.o.LocationName + '(' + param.o.LocationAddress + ')',
+                            text: 'Vừa qua trạm ' + param.o.LocationName,
                         });
                     }
                     else {
                         $rootScope.PopupAlert({
                             title: 'GPS',
-                            template: 'Đã đến ' + param.o.LocationName + '(' + param.o.LocationAddress + ')',
+                            template: 'Vừa qua trạm ' + param.o.LocationName,
                         });
                     }
 
-                    $rootScope.RemoveGeofence($rootScope.IndexOfList.COStation);
-                    $rootScope.RemoveGeofence($rootScope.IndexOfList.LocationFrom);
-                    $rootScope.RemoveGeofence($rootScope.IndexOfList.LocationTo);
-                    $scope.LoadData();
                 }
             })
+      
+        }
+    };
+
+    $scope.COLocationAutoComplete = function (param) {
+        if ($rootScope.IsCallServer == false) {
+            $rootScope.IsCallServer = true;
+            localDb.FLMMobileStatusCOSave(param.timesheetID, param.masterID, param.o.LocationID, param.romoocID).then(function (res) {
+                $rootScope.IsCallServer = false;
+                var isBackgroundMode = false;
+                try {
+                    isBackgroundMode = cordova.plugins.backgroundMode.isActive();
+                } catch (e) {
+                    isBackgroundMode = false;
+                }
+                if (isBackgroundMode) {
+                    cordova.plugins.notification.local.schedule({
+                        id: 10,
+                        title: "STM GPS",
+                        text: 'Đã đến ' + param.o.LocationName + '(' + param.o.LocationAddress + ')',
+                    });
+                }
+                else {
+                    $rootScope.PopupAlert({
+                        title: 'GPS',
+                        template: 'Đã đến ' + param.o.LocationName + '(' + param.o.LocationAddress + ')',
+                    });
+                }
+
+                $rootScope.RemoveGeofence($rootScope.IndexOfList.COStation);
+                $rootScope.RemoveGeofence($rootScope.IndexOfList.LocationFrom);
+                $rootScope.RemoveGeofence($rootScope.IndexOfList.LocationTo);
+                $scope.LoadData();
+            })           
         }
     };
     
@@ -477,26 +445,20 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
                     $rootScope.CurrentTemperature = scope.temp;
 
                     $ionicLoading.show();
-                    Common.Services.Call($http, {
-                        url: Common.Services.url.MOBI,
-                        method: "FLMMobileMaster_Run",
-                        data: { timeID: id },
-                        success: function (res) {
-                            if (res == "") {
-                                $scope.LoadData();
-                            }
-                            else {
-                                $ionicLoading.hide();
-                                $rootScope.PopupAlert({
-                                    title: 'Lỗi',
-                                    template: res,
-                                });
-                            }
-                        },
-                        error: function (e) {
+
+                    localDb.FLMMobileMasterRun(id).then(function (res) {
+                        if (res == "") {
                             $scope.LoadData();
+                        } else {
+                            $ionicLoading.hide();
+                            $rootScope.PopupAlert({
+                                title: 'Lỗi',
+                                template: res,
+                            });
                         }
-                    })
+                    }).catch(function (error) {
+                        $scope.LoadData();
+                    });
                 }
             });
             //$rootScope.PopupConfirm({
@@ -540,14 +502,9 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
                 var rsid = scope.reasonID.ID;
                 if (rsid > 0) {
                     $ionicLoading.show();
-                    Common.Services.Call($http, {
-                        url: Common.Services.url.MOBI,
-                        method: "FLMMobileMaster_Reject",
-                        data: { timesheetID: timesheetID, timedriverID: timedriverID, reasonID: rsid, reasonNote: scope.reasonNote },
-                        success: function (res) {
-                            $scope.LoadData();
-                        }
-                    })
+                    localDb.FLMMobileMasterReject(timedriverID, timesheetID, rsid, scope.reasonNote).then(function (res) {
+                        $scope.LoadData();
+                    })                    
                 }
                 else {
                     $rootScope.PopupAlert({
@@ -567,31 +524,20 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
             cancelText: 'Từ chối',
             ok: function () {
                 $ionicLoading.show();
-                Common.Services.Call($http, {
-                    url: Common.Services.url.MOBI,
-                    method: "FLMMobileMaster_Accept",
-                    data: { timesheetID: timesheetID, timedriverID: timedriverID },
-                    success: function (res) {
-                        $scope.LoadData();
-                    },
-                    error: function (e) {
-                        $scope.LoadData();
-                    }
-                })
+                localDb.FLMMobileMasterAccept(timedriverID, timesheetID).then(function (res) {
+                    $scope.LoadData();
+                }).catch(function (res) {
+                    $scope.LoadData();
+                })              
             }
         });
 
     }
 
     $scope.ReAcceptMaster = function (timesheetID) {
-        Common.Services.Call($http, {
-            url: Common.Services.url.MOBI,
-            method: "FLMMobileMaster_ReAccept",
-            data: { timesheetID: timesheetID },
-            success: function (res) {
-                $scope.LoadData();
-            }
-        })
+        localDb.FLMMobileMasterReAccept(timesheetID).then(function (res) {
+            $scope.LoadData();
+        })  
     }
 
     $scope.LocationComplete = function (timedriverID, timesheetID, masterID, locationID, statusID, locatioName) {
@@ -610,14 +556,10 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
                 ok: function (scope) {
                     $rootScope.CurrentTemperature = scope.temp;
                     $ionicLoading.show();
-                    Common.Services.Call($http, {
-                        url: Common.Services.url.MOBI,
-                        method: "FLMMobileStatus_Save",
-                        data: { timesheetID: timesheetID, timedriverID: timedriverID, masterID: masterID, locationID: locationID, statusID: statusType, temp: $rootScope.CurrentTemperature },
-                        success: function (res) {
-                            $scope.LoadData();
-                        }
+                    localDb.FLMMobileStatusSave(timesheetID, timedriverID, masterID, locationID, $rootScope.CurrentTemperature).then(function (res) {
+                        $scope.LoadData();
                     })
+                   
                 }
             });
         }
@@ -628,13 +570,8 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
             cancelText: 'Từ chối',
             ok: function () {
                 $ionicLoading.show();
-                Common.Services.Call($http, {
-                    url: Common.Services.url.MOBI,
-                    method: "FLMMobileStatus_Save",
-                    data: { timesheetID: timesheetID, timedriverID: timedriverID, masterID: masterID, locationID: locationID, statusID: statusType, temp: $rootScope.CurrentTemperature },
-                    success: function (res) {
-                        $scope.LoadData();
-                    }
+                localDb.FLMMobileStatusSave(timesheetID, timedriverID, masterID, locationID, $rootScope.CurrentTemperature).then(function (res) {
+                    $scope.LoadData();
                 })
             },
             cancel: function () {
@@ -684,15 +621,9 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
             cancelText: 'Từ chối',
             ok: function () {
                 $ionicLoading.show();
-                Common.Services.Call($http, {
-                    url: Common.Services.url.MOBI,
-                    method: "FLMMobileStatus_COSave",
-                    data: { timesheetID: timesheetID, masterID: masterID, locationID: locationID, romoocID: romoocID },
-                    success: function (res) {
-                        $rootScope.StopGeofence();
-                        $scope.LoadData();
-                    }
-                })
+                localDb.FLMMobileStatusCOSave(timesheetID, masterID, locationID, romoocID).then(function (res) {
+                    $scope.LoadData();
+                })            
             },
             cancel: function () {
                 $interval.cancel($scope.interval);
