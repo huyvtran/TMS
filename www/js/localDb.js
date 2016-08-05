@@ -6,8 +6,7 @@ angular.module('myapp').factory('localDb', function ($http) {
 
 		this.FLMMobileScheduleOpen_List =function(){
 			
-		    var FLMMobileScheduleOpen_ListPromise = new Promise(function (resolve, reject) {
-		        
+		    var FLMMobileScheduleOpen_ListPromise = new Promise(function (resolve, reject) {		        
 				Common.Services.Call($http, {
 				url: Common.Services.url.MOBI,
 				method: "FLMMobileScheduleOpen_List",
