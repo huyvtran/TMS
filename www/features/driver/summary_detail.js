@@ -1,4 +1,4 @@
-﻿angular.module('myapp').controller('driver_summaryDetailController', function ($rootScope, $scope, $state, $stateParams, $location, $http, $timeout, $ionicLoading, $ionicModal) {
+﻿angular.module('myapp').controller('driver_summaryDetailController', function ($rootScope, $scope, $state, $stateParams, $location, $http, $timeout, $ionicLoading, $ionicModal, localDb) {
     console.log('driver_summaryDetailController');
 
     $scope.timesheetID = $stateParams.timesheetID;
@@ -24,27 +24,16 @@
 
     $scope.LoadSO = function () {
 
-        Common.Services.Call($http, {
-            url: Common.Services.url.MOBI,
-            method: "FLMMobile_SummarySOList",
-            data: {
-                timesheetID: $scope.timesheetID,
-            },
-            success: function (res) {
-                $ionicLoading.hide();
-                $scope.SOList = res;
-                angular.forEach($scope.SOList, function (o, i) {
-                    o.lstFile = [];
-                    Common.Services.Call($http, {
-                        url: Common.Services.url.MOBI,
-                        method: 'FLMMobileDriver_FileList',
-                        data: { id: o.ID, code: "dipod" },
-                        success: function (res) {
-                            o.lstFile = res;
-                        }
-                    });
+        localDb.FLMMobileSummarySOList($scope.timesheetID).then(function (res) {
+            $ionicLoading.hide();
+            $scope.SOList = res;
+            angular.forEach($scope.SOList, function (o, i) {
+                o.lstFile = [];
+                var code = "dipod";
+                localDb.FLMMobileDriverFileList(o.ID, code).then(function (res) {
+                    o.lstFile = res;
                 })
-            }
+            })
         })
     }
     $scope.LoadSO();
@@ -73,68 +62,39 @@
     $scope.LoadGOPReturn = function () {
 
         $ionicLoading.show();
-        Common.Services.Call($http, {
-            url: Common.Services.url.MOBI,
-            method: "Mobile_GOPReturnList",
-            data: {
-                masterID: $scope.masterID,
-                locationID: $scope.locationID
-            },
-            success: function (res) {
-                $scope.ReturnList = res;
+        localDb.MobileGOPReturnList($scope.masterID, $scope.locationID).then(function (res) {
+            $scope.ReturnList = res;
+        })
+
+        localDb.MobileDITOGroupProductList($scope.masterID, $scope.locationID).then(function (res) {
+            if (res.length > 0) {
+                $scope.SOAddressList = res;
+            }
+            else {
+                $scope.NoReturn = true;
             }
         })
 
-        Common.Services.Call($http, {
-            url: Common.Services.url.MOBI,
-            method: "Mobile_DITOGroupProductList",
-            data: {
-                masterID: $scope.masterID,
-                locationID: $scope.locationID
-            },
-            success: function (res) {
-                if (res.length > 0) {
-                    $scope.SOAddressList = res;
-                }
-                else {
-                    $scope.NoReturn = true;
-                }
+        localDb.MobileCUSGOPList($scope.masterID).then(function (res) {
+            if (res.length > 0) {
+                $scope.GOPReturnList = res;
+            }
+            else {
+                $scope.NoReturn = true;
             }
         })
 
-        Common.Services.Call($http, {
-            url: Common.Services.url.MOBI,
-            method: "Mobile_CUSGOPList",
-            data: {
-                masterID: $scope.masterID,
-            },
-            success: function (res) {
-                if (res.length > 0) {
-                    $scope.GOPReturnList = res;
-                }
-                else {
-                    $scope.NoReturn = true;
-                }
+        localDb.MobileCUSProductList($scope.masterID).then(function (res) {
+            $ionicLoading.hide();
+            if (res.length > 0) {
+                $scope.ProductReturnData = res;
+                $scope.ReloadProduct();
+            }
+            else {
+                $scope.NoReturn = true;
             }
         })
-
-        Common.Services.Call($http, {
-            url: Common.Services.url.MOBI,
-            method: "Mobile_CUSProductList",
-            data: {
-                masterID: $scope.masterID,
-            },
-            success: function (res) {
-                $ionicLoading.hide();
-                if (res.length > 0) {
-                    $scope.ProductReturnData = res;
-                    $scope.ReloadProduct();
-                }
-                else {
-                    $scope.NoReturn = true;
-                }
-            }
-        })
+  
     }
     //$scope.LoadGOPReturn();
 
@@ -147,19 +107,14 @@
                 cancelText: 'Từ chối',
                 ok: function () {
                     $ionicLoading.show();
-                    Common.Services.Call($http, {
-                        url: Common.Services.url.MOBI,
-                        method: "Mobile_GOPReturnSave",
-                        data: { item: $scope.GOPItem },
-                        success: function (res) {
-                            $ionicLoading.hide();
-                            $scope.ShowReturnDetail = false;
-                            $scope.LoadGOPReturn();
-                            $scope.SOAddressCombobox.Clear();
-                            $scope.GOPCombobox.Clear();
-                            $scope.ProductCombobox.Clear();
-                        }
-                    })
+                    localDb.MobileGOPReturnSave($scope.GOPItem).then(function (res) {
+                        $ionicLoading.hide();
+                        $scope.ShowReturnDetail = false;
+                        $scope.LoadGOPReturn();
+                        $scope.SOAddressCombobox.Clear();
+                        $scope.GOPCombobox.Clear();
+                        $scope.ProductCombobox.Clear();
+                    })                
                 }
             });
         }
@@ -213,18 +168,10 @@
                 var num = scope.ReturnQuantity;
                 if (num > 0) {
                     $ionicLoading.show();
-                    Common.Services.Call($http, {
-                        url: Common.Services.url.MOBI,
-                        method: "Mobile_GOPReturnEdit",
-                        data: {
-                            id: item.ID,
-                            quantity: num
-                        },
-                        success: function (res) {
-                            $ionicLoading.hide();
-                            $scope.LoadGOPReturn();
-                        }
-                    })
+                    localDb.MobileGOPReturnEdit(item.ID, num).then(function (res) {
+                        $ionicLoading.hide();
+                        $scope.LoadGOPReturn();
+                    })              
                 }
             }
         });
@@ -247,19 +194,13 @@
         .success(function (e) {
             e.ReferID = $scope.uploadItem.ID;
             e.TypeOfFileCode = 'DIPOD';
-
-            Common.Services.Call($http, {
-                url: Common.Services.url.SYS,
-                method: 'App_FileSave',
-                data: { item: e },
-                success: function (res) {
-                    $rootScope.PopupAlert({
-                        title: 'Thông báo',
-                        template: 'Lưu thành công',
-                        ok: function () { $scope.LoadSO(); }
-                    })
-                }
-            });
+            localDb.AppFileSave(e).then(function (res) {
+                $rootScope.PopupAlert({
+                    title: 'Thông báo',
+                    template: 'Lưu thành công',
+                    ok: function () { $scope.LoadSO(); }
+                })
+            })      
         })
         .error(function () {
         });

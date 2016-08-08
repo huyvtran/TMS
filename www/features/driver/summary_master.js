@@ -1,18 +1,10 @@
-﻿angular.module('myapp').controller('driver_summaryMasterController', function ($rootScope, $scope, $ionicLoading, $state, $http) {
+﻿angular.module('myapp').controller('driver_summaryMasterController', function ($rootScope, $scope, $ionicLoading, $state, $http, localDb) {
     console.log('driver_summaryMasterController');
 
-
-    Common.Services.Call($http, {
-        url: Common.Services.url.MOBI,
-        method: "FLMMobileSchedule_Get",
-        data: {
-            timeSheetDriverID: $state.params.timeSheetDriverID,
-        },
-        success: function (res) {
-            $scope.AcceptedItem = res;
-
-        }
+    localDb.FLMMobileScheduleGet($state.params.timeSheetDriverID).then(function (res) {
+        $scope.AcceptedItem = res;
     })
+
 
     $scope.BackToTruck = function () {
         $state.go('driver.summary');

@@ -1,4 +1,4 @@
-﻿angular.module('myapp').controller('driver_containerDetailController', function ($rootScope, $scope, $state, $stateParams, $location, $http, $timeout, $ionicLoading, $ionicModal) {
+﻿angular.module('myapp').controller('driver_containerDetailController', function ($rootScope, $scope, $state, $stateParams, $location, $http, $timeout, $ionicLoading, $ionicModal,localDb) {
     console.log('driver_containerDetailController');
 
     $scope.masterID = $stateParams.masterID;
@@ -18,29 +18,17 @@
 
 
     $scope.LoadSO = function () {
-
-        Common.Services.Call($http, {
-            url: Common.Services.url.MOBI,
-            method: "FLMMobile_COList",
-            data: {
-                masterID: $scope.masterID
-            },
-            success: function (res) {
-                $ionicLoading.hide();
-                $scope.SOList = res;
-                angular.forEach($scope.SOList, function (o, i) {
-                    o.lstFile = [];
-                    Common.Services.Call($http, {
-                        url: Common.Services.url.MOBI,
-                        method: 'FLMMobileDriver_FileList',
-                        data: { id: o.ID, code: "copod" },
-                        success: function (res) {
-                            o.lstFile = res;
-                        }
-                    });
-                })
-            }
-        })
+        localDb.FLMMobileCOList($scope.masterID).then(function (res) {
+            $ionicLoading.hide();
+            $scope.SOList = res;
+            angular.forEach($scope.SOList, function (o, i) {
+                o.lstFile = [];
+                var code = "copod";
+                localDb.FLMMobileDriverFileList(o.ID, code).then(function (res) {
+                    o.lstFile = res;
+                })               
+            })
+        })      
     }
     $scope.LoadSO();
 

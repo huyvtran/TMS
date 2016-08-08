@@ -151,7 +151,7 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
                         angular.forEach(res, function (o, index) {
                             lst.push({
                                 Lat: o.Lat,
-                                Lng: o.Lat,
+                                Lng: o.Lng,
                                 Radius: 0.05,
                                 IsEnter: false,
                                 Item: o,
@@ -244,7 +244,7 @@ angular.module('myapp').controller('driver_truckController', function ($rootScop
                         angular.forEach(res, function (o, index) {
                             lst.push({
                                 Lat: o.Lat,
-                                Lng: o.Lat,
+                                Lng: o.Lng,
                                 Radius: 0.05,
                                 IsEnter: false,
                                 Item: o,

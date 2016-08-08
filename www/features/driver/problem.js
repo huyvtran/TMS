@@ -1,4 +1,4 @@
-﻿angular.module('myapp').controller('driver_problemController', function ($rootScope, $scope, $state, $stateParams, $location, $http, $timeout, $ionicLoading, $ionicModal) {
+﻿angular.module('myapp').controller('driver_problemController', function ($rootScope, $scope, $state, $stateParams, $location, $http, $timeout, $ionicLoading, $ionicModal,localDb) {
     console.log('driver_truckProblemController');
 
     $scope.ProblemItem = {};
@@ -8,23 +8,14 @@
         $scope.selectedTab = i;
     }
 
-    Common.Services.Call($http, {
-        url: Common.Services.url.MOBI,
-        method: "FLMMobileDriver_ProblemTypeList",
-        data: {},
-        success: function (res) {
-            $scope.ProblemTypeData = res;
-        }
+    localDb.FLMMobileDriverProblemTypeList().then(function (res) {
+        $scope.ProblemTypeData = res;
     })
 
-    Common.Services.Call($http, {
-        url: Common.Services.url.MOBI,
-        method: "ProblemList",
-        data: { },
-        success: function (res) {
-            $scope.ProblemList = res;
-        }
+    localDb.ProblemList().then(function (res) {
+        $scope.ProblemList = res;
     })
+
 
     $scope.ProblemSave = function () {
         navigator.geolocation.getCurrentPosition(function (position) {
@@ -37,21 +28,11 @@
             item.TypeOfRouteProblemID = $scope.ProblemItem.TypeOfRouteProblemID;
             item.DriverID = $rootScope.DriverID;
             item.VehicleID = $rootScope.VehicleID;
-            Common.Services.Call($http, {
-                url: Common.Services.url.MOBI,
-                method: "FLMMobileDriver_ProblemSave",
-                data: { item: item },
-                success: function (res) {
-                    $rootScope.PopupAlert({ title: 'Thành công' });
-                    Common.Services.Call($http, {
-                        url: Common.Services.url.MOBI,
-                        method: "ProblemList",
-                        data: {},
-                        success: function (res) {
-                            $scope.ProblemList = res;
-                        }
-                    })
-                }
+            localDb.FLMMobileDriverProblemSave(item).then(function (res) {
+                $rootScope.PopupAlert({ title: 'Thành công' });
+                localDb.ProblemList().then(function (res) {
+                    $scope.ProblemList = res;
+                })
             })
         });
     }

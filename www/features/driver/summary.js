@@ -1,4 +1,4 @@
-﻿angular.module('myapp').controller('driver_summaryController', function ($rootScope, $scope, $ionicLoading, $state, $location, $http, $timeout, $ionicSideMenuDelegate, charting) {
+﻿angular.module('myapp').controller('driver_summaryController', function ($rootScope, $scope, $ionicLoading, $state, $location, $http, $timeout, $ionicSideMenuDelegate, charting, localDb) {
     console.log('driver_summaryController');
 
     $rootScope.DriverID = Common.Auth.Item.DriverID;
@@ -51,75 +51,60 @@
     };
 
     $scope.loadHistory = function () {
-        Common.Services.Call($http, {
-            url: Common.Services.url.MOBI,
-            method: "FLMMobileDriverHistory_List",
-            data: {
-                driverID: $rootScope.DriverID,
-                dtfrom: $scope.HSearch.dSFrom,
-                dtto: $scope.HSearch.dSTo
-            },
-            success: function (res) {
-                $ionicLoading.hide(); $scope.$broadcast('scroll.refreshComplete');
-                $scope.HistoryList = res;
-                $ionicLoading.hide();
-
-                var hdata = [];
-                hdata[0] = ['Complete', 0];
-                hdata[1] = ['Cancel', 1];
-                angular.forEach(res, function (o, i) {
-                    if (o.IsReject) {
-                        hdata[1][1]++;
-                    }
-                    else {
-                        hdata[0][1]++;
-                    }
-                })
-                $scope.someData = [hdata];
-            }
-        })
-    }
-    $scope.loadSalary = function () {
-        Common.Services.Call($http, {
-            url: Common.Services.url.MOBI,
-            method: "FLMMobileDriverSalary_List",
-            data: {
-                dtfrom: $scope.SSearch.dSFrom,
-                dtto: $scope.SSearch.dSTo
-            },
-            success: function (res) {
-                $ionicLoading.hide();
-                $scope.SalaryList = res;
-                var data = [[]];
-                var hasData = false;
-                data[0].push(['Lương chuyến', 0]);
-                data[0].push(['Lương cơ bản', 0]);
-                data[0].push(['Lương thưởng', 0]);
-                data[0].push(['Lương doanh thu', 0]);
-                angular.forEach(res, function (o, i) {
-                    switch (o.CostName) {
-                        case 'Lương chuyến':
-                            data[0][0][1] += o.Price;
-                            hasData = true;
-                            break;
-                        case 'Lương thưởng':
-                            data[0][1][1] += o.Price;
-                            hasData = true;
-                            break;
-                    }
-                })
-                if (hasData) {
-                    $scope.salaryData = data;
-
-                    if (Common.HasValue($scope.salaryChart))
-                        $scope.salaryChart.destroy();
-                    $timeout(function () {
-                        $scope.salaryChart = $.jqplot('salaryChart', $scope.salaryData, charting.donutOptions);
-                    }, 100)
+        localDb.FLMMobileDriverHistoryList($rootScope.DriverID, $scope.HSearch.dSFrom, $scope.HSearch.dSTo).then(function (res) {
+            $ionicLoading.hide(); $scope.$broadcast('scroll.refreshComplete');
+            $scope.HistoryList = res;
+            $ionicLoading.hide();
+            var hdata = [];
+            hdata[0] = ['Complete', 0];
+            hdata[1] = ['Cancel', 1];
+            angular.forEach(res, function (o, i) {
+                if (o.IsReject) {
+                    hdata[1][1]++;
                 }
-            }
-        })
+                else {
+                    hdata[0][1]++;
+                }
+            })
+            $scope.someData = [hdata];
+        })   
     }
+    //
+    $scope.loadSalary = function () {
+        localDb.FLMMobileDriverSalaryList($scope.SSearch.dSFrom, $scope.SSearch.dSTo).then(function (res) {
+            $ionicLoading.hide();
+            $scope.SalaryList = res;
+            var data = [[]];
+            var hasData = false;
+            data[0].push(['Lương chuyến', 0]);
+            data[0].push(['Lương cơ bản', 0]);
+            data[0].push(['Lương thưởng', 0]);
+            data[0].push(['Lương doanh thu', 0]);
+            angular.forEach(res, function (o, i) {
+                switch (o.CostName) {
+                    case 'Lương chuyến':
+                        data[0][0][1] += o.Price;
+                        hasData = true;
+                        break;
+                    case 'Lương thưởng':
+                        data[0][1][1] += o.Price;
+                        hasData = true;
+                        break;
+                }
+            })
+            if (hasData) {
+                $scope.salaryData = data;
+
+                if (Common.HasValue($scope.salaryChart))
+                    $scope.salaryChart.destroy();
+                $timeout(function () {
+                    $scope.salaryChart = $.jqplot('salaryChart', $scope.salaryData, charting.donutOptions);
+                }, 100)
+            }
+        })    
+    }
+
+    //
 
     $scope.$watch("HSearch.dSFrom", function (newValue, oldValue) {
         if (newValue != oldValue) {
@@ -173,68 +158,53 @@
     $scope.LoadData = function () {
         $scope.lstCheck = [false, false, false, false, false, false];
 
-        Common.Services.Call($http, {
-            url: Common.Services.url.MOBI,
-            method: "FLMMobileDriverHistory_List",
-            data: {
-                driverID: $rootScope.DriverID,
-                dtfrom: $scope.HSearch.dSFrom,
-                dtto: $scope.HSearch.dSTo
-            },
-            success: function (res) {
-                $ionicLoading.hide(); $scope.$broadcast('scroll.refreshComplete');
-                $scope.HistoryList = res;
-                $ionicLoading.hide();
+        localDb.FLMMobileDriverHistoryList($rootScope.DriverID, $scope.HSearch.dSFrom, $scope.HSearch.dSTo).then(function (res) {
+            $ionicLoading.hide(); $scope.$broadcast('scroll.refreshComplete');
+            $scope.HistoryList = res;
+            $ionicLoading.hide();
 
-                var hdata = [];
-                hdata[0] = ['Complete', 0];
-                hdata[1] = ['Cancel', 1];
-                angular.forEach(res, function (o, i) {
-                    if (o.IsReject) {
-                        hdata[1][1]++;
-                    }
-                    else {
-                        hdata[0][1]++;
-                    }
-                })
-                $scope.someData = [hdata];
-                $scope.performChart = $.jqplot('chart', $scope.someData, charting.pieChartOptions);
-            }
-        })
-
-        Common.Services.Call($http, {
-            url: Common.Services.url.MOBI,
-            method: "FLMMobileDriverSalary_List",
-            data: {
-                dtfrom: $scope.SSearch.dSFrom,
-                dtto: $scope.SSearch.dSTo
-            },
-            success: function (res) {
-                $scope.SalaryList = res;
-                var data = [[]];
-                var hasData=false;
-                data[0].push(['Lương chuyến', 0]);
-                data[0].push(['Lương cơ bản', 0]);
-                data[0].push(['Lương thưởng', 0]);
-                data[0].push(['Lương doanh thu', 0]);
-                angular.forEach(res, function (o, i) {
-                    switch (o.CostName) {
-                        case 'Lương chuyến':
-                            data[0][0][1] += o.Price;
-                            hasData=true;
-                            break;
-                        case 'Lương thưởng':
-                            data[0][1][1] += o.Price;
-                            hasData = true;
-                            break;
-                    }
-                })
-                if (hasData) {
-                    $scope.salaryData = data;
-                    $scope.salaryChart = $.jqplot('salaryChart', $scope.salaryData, charting.donutOptions);
+            var hdata = [];
+            hdata[0] = ['Complete', 0];
+            hdata[1] = ['Cancel', 1];
+            angular.forEach(res, function (o, i) {
+                if (o.IsReject) {
+                    hdata[1][1]++;
                 }
+                else {
+                    hdata[0][1]++;
+                }
+            })
+            $scope.someData = [hdata];
+            $scope.performChart = $.jqplot('chart', $scope.someData, charting.pieChartOptions);
+        })
+
+
+        localDb.FLMMobileDriverSalaryList($scope.SSearch.dSFrom, $scope.SSearch.dSTo).then(function (res) {
+            $scope.SalaryList = res;
+            var data = [[]];
+            var hasData = false;
+            data[0].push(['Lương chuyến', 0]);
+            data[0].push(['Lương cơ bản', 0]);
+            data[0].push(['Lương thưởng', 0]);
+            data[0].push(['Lương doanh thu', 0]);
+            angular.forEach(res, function (o, i) {
+                switch (o.CostName) {
+                    case 'Lương chuyến':
+                        data[0][0][1] += o.Price;
+                        hasData = true;
+                        break;
+                    case 'Lương thưởng':
+                        data[0][1][1] += o.Price;
+                        hasData = true;
+                        break;
+                }
+            })
+            if (hasData) {
+                $scope.salaryData = data;
+                $scope.salaryChart = $.jqplot('salaryChart', $scope.salaryData, charting.donutOptions);
             }
         })
+
     }
     $scope.LoadData();
 
